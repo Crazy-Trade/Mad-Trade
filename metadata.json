@@ -1,0 +1,5 @@
+{
+  "name": "Deep Trading Simulator v16 (Final)",
+  "description": "A grand strategy/tycoon simulator where the player evolves from a simple trader to a global economic and political powerhouse. The game features a sophisticated simulation engine with interconnected global factors and asset DNAs, a full suite of trading mechanics including spot and margin trading, an entrepreneurship module for building a corporate empire, and a political influence system. This final version includes 12 world powers, over 40 tradable assets, a dynamic news system, and full support for English and Persian (RTL).",
+  "requestFramePermissions": []
+}
