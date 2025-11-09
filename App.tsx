@@ -8,6 +8,7 @@ import MainContent from './components/MainContent';
 import CountrySelectionModal from './components/CountrySelectionModal';
 import { COUNTRIES } from './game/database';
 import { t } from './game/translations';
+import NewsHeader from './components/NewsHeader';
 
 const App: React.FC = () => {
     const [state, dispatch] = useReducer(gameReducer, getInitialState());
@@ -89,6 +90,7 @@ const App: React.FC = () => {
     return (
         <div className="bg-stone-950 text-stone-200 min-h-screen font-lato flex flex-col">
             <Header gameState={state} dispatch={dispatch} />
+            <NewsHeader majorEvent={state.majorEvent} tickerNews={state.newsTicker} language={state.language} />
             <MainContent
                 gameState={state}
                 dispatch={dispatch}

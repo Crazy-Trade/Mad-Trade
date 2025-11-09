@@ -12,6 +12,7 @@ const PoliticsView: React.FC<PoliticsViewProps> = ({ gameState, setActiveModal, 
     if (!country) return <div>Error: Country not found</div>;
     
     const currentPoliticalCapital = player.politicalCapital[country.id] || 0;
+    const totalPoliticalCapital = Object.values(player.politicalCapital).reduce((sum, val) => sum + val, 0);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -24,8 +25,12 @@ const PoliticsView: React.FC<PoliticsViewProps> = ({ gameState, setActiveModal, 
                         <span className="font-bold text-lg">{country.name}</span>
                     </div>
                      <div className="flex justify-between items-baseline">
-                        <span className="text-stone-400">{t('politicalCapital', language)}:</span>
+                        <span className="text-stone-400">{t('politicalCapital', language)} ({country.id}):</span>
                         <span className="font-bold text-lg text-violet-400">{formatNumber(currentPoliticalCapital)}</span>
+                    </div>
+                     <div className="flex justify-between items-baseline">
+                        <span className="text-stone-400">Total {t('politicalCapital', language)}:</span>
+                        <span className="font-bold text-lg text-violet-400">{formatNumber(totalPoliticalCapital)}</span>
                     </div>
                     <div>
                         <h3 className="text-stone-400 mb-2">{t('majorParties', language)}:</h3>
@@ -49,10 +54,10 @@ const PoliticsView: React.FC<PoliticsViewProps> = ({ gameState, setActiveModal, 
                          {t('donateToParty', language)} / {t('localLobbying', language)}
                     </button>
                     <button
-                        disabled={true}
-                        className="w-full bg-stone-700 text-stone-400 font-bold py-2 px-4 rounded-md cursor-not-allowed"
+                        onClick={() => setActiveModal({ type: 'global-influence' })}
+                        className="w-full bg-sky-500 text-white font-bold py-2 px-4 rounded-md hover:bg-sky-600 transition-colors"
                      >
-                         {t('globalOperations', language)} (Soon)
+                         {t('globalOperations', language)}
                     </button>
                     <button
                         onClick={() => setActiveModal({ type: 'immigration' })}

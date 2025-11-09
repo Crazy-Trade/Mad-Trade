@@ -4,7 +4,7 @@ import { CompaniesViewProps, CompanyType } from '../../game/types';
 import { formatCurrency } from '../../utils';
 import { t } from '../../game/translations';
 
-const companyTypes: CompanyType[] = ['tech', 'mining', 'pharma', 'media'];
+const companyTypes: CompanyType[] = ['tech', 'mining', 'pharma', 'media', 'finance', 'real_estate'];
 
 const CompaniesView: React.FC<CompaniesViewProps> = ({ companies, playerCash, setActiveModal, language }) => {
     return (
@@ -43,7 +43,7 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({ companies, playerCash, se
 
             <div>
                  <h2 className="text-xl font-bold text-amber-400 mb-4">{t('establishCompany', language)}</h2>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                      {companyTypes.map(type => (
                          <div key={type} className="bg-stone-900 border border-stone-800 rounded-lg p-4 text-center">
                              <h3 className="font-bold text-lg mb-2">{t(type, language)}</h3>

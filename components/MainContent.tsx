@@ -7,18 +7,21 @@ import CompaniesView from './views/CompaniesView';
 import PoliticsView from './views/PoliticsView';
 import BankView from './views/BankView';
 import LogView from './views/LogView';
+import NewsView from './views/NewsView';
 import TradeModal from './TradeModal';
 import OrderModal from './OrderModal';
 import CompanyModal from './CompanyModal';
 import UpgradeCompanyModal from './UpgradeCompanyModal';
 import PoliticsModal from './PoliticsModal';
 import ImmigrationModal from './ImmigrationModal';
+import GlobalInfluenceModal from './GlobalInfluenceModal';
 import EventModal from './EventModal';
+import AnalystModal from './AnalystModal';
 import { t } from '../game/translations';
-// Fix: Imported COUNTRIES to pass to ImmigrationModal.
 import { COUNTRIES } from '../game/database';
+import TimeControls from './TimeControls';
 
-type Tab = 'markets' | 'portfolio' | 'corporate' | 'politics' | 'bank' | 'log';
+type Tab = 'markets' | 'portfolio' | 'corporate' | 'politics' | 'bank' | 'log' | 'news';
 
 const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeModal, setActiveModal }) => {
     const [activeTab, setActiveTab] = useState<Tab>('markets');
@@ -35,15 +38,19 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
             case 'politics':
                 return <PoliticsView gameState={gameState} setActiveModal={setActiveModal} language={language} />;
             case 'bank':
-                return <BankView loan={player.loan} netWorth={player.cash} playerCash={player.cash} dispatch={dispatch} language={language} />;
+                return <BankView loan={player.loan} netWorth={player.cash} playerCash={player.cash} dispatch={dispatch} setActiveModal={setActiveModal} language={language} />;
             case 'log':
                 return <LogView log={player.log} language={language} />;
+            case 'news':
+                return <NewsView newsArchive={gameState.newsArchive} language={language} />;
             default:
                 return null;
         }
     };
     
     const netWorth = player.cash; // Simplified for now
+    const totalPoliticalCapital = Object.values(player.politicalCapital).reduce((sum, val) => sum + val, 0);
+
 
     const tabs: { id: Tab, label: string }[] = [
         { id: 'markets', label: t('markets', language) },
@@ -51,11 +58,22 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
         { id: 'corporate', label: t('corporate', language) },
         { id: 'politics', label: t('politics', language) },
         { id: 'bank', label: t('bank', language) },
+        { id: 'news', label: t('news', language) },
         { id: 'log', label: t('log', language) },
     ];
 
     return (
         <main className="flex-grow p-6 flex flex-col">
+            <div className="flex justify-center mb-6">
+                <TimeControls
+                    gameSpeed={gameState.gameSpeed}
+                    isPaused={gameState.isPaused}
+                    dispatch={dispatch}
+                    date={gameState.date}
+                    language={language}
+                />
+            </div>
+
             <div className="border-b border-stone-800 mb-6">
                 <nav className="-mb-px flex space-x-6" aria-label="Tabs">
                     {tabs.map(tab => (
@@ -88,7 +106,14 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
                 />
             )}
             {activeModal?.type === 'order' && assets[activeModal.assetId] && (
-                <OrderModal onClose={() => setActiveModal(null)} assetName={assets[activeModal.assetId].name} language={language} />
+                 <OrderModal 
+                    onClose={() => setActiveModal(null)} 
+                    asset={assets[activeModal.assetId]}
+                    portfolioItem={player.portfolio[activeModal.assetId]}
+                    playerCash={player.cash}
+                    dispatch={dispatch}
+                    language={language}
+                />
             )}
              {activeModal?.type === 'company' && (
                 <CompanyModal 
@@ -127,6 +152,25 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
                     netWorth={netWorth}
                     playerCash={player.cash}
                     countries={COUNTRIES}
+                    language={language}
+                />
+            )}
+            {activeModal?.type === 'global-influence' && (
+                <GlobalInfluenceModal
+                    onClose={() => setActiveModal(null)}
+                    dispatch={dispatch}
+                    politicalCapital={totalPoliticalCapital}
+                    playerCash={player.cash}
+                    language={language}
+                />
+            )}
+            {activeModal?.type === 'analyst' && (
+                <AnalystModal
+                    onClose={() => setActiveModal(null)}
+                    analysisType={activeModal.analysisType}
+                    playerCash={player.cash}
+                    assets={assets}
+                    dispatch={dispatch}
                     language={language}
                 />
             )}

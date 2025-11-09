@@ -18,7 +18,9 @@ const TradeModal: React.FC<TradeModalProps> = ({ onClose, asset, portfolioItem, 
     const canAfford = orderType === 'spot' ? playerCash >= totalCost : playerCash >= marginCost;
     const hasEnoughToSell = portfolioItem ? portfolioItem.quantity >= quantity : false;
 
-    const maxBuy = Math.floor(playerCash / asset.price);
+    const maxBuy = orderType === 'spot'
+        ? Math.floor(playerCash / asset.price)
+        : Math.floor((playerCash * leverage) / asset.price);
     const maxSell = portfolioItem?.quantity || 0;
 
     const handleConfirm = () => {
@@ -60,9 +62,9 @@ const TradeModal: React.FC<TradeModalProps> = ({ onClose, asset, portfolioItem, 
                 {orderType === 'margin' && (
                     <div className="mb-4">
                         <label className="block text-sm font-bold text-stone-400 mb-2">{t('leverage', language)}</label>
-                        <div className="flex justify-center space-x-2">
-                            {[2, 5, 10].map(l => (
-                                <button key={l} onClick={() => setLeverage(l)} className={`w-full py-2 rounded-md font-bold ${leverage === l ? 'bg-violet-500 text-white' : 'bg-stone-800 hover:bg-stone-700'}`}>x{l}</button>
+                        <div className="grid grid-cols-6 gap-2">
+                            {[2, 5, 10, 25, 50, 100].map(l => (
+                                <button key={l} onClick={() => setLeverage(l)} className={`py-2 rounded-md font-bold text-xs ${leverage === l ? 'bg-violet-500 text-white' : 'bg-stone-800 hover:bg-stone-700'}`}>x{l}</button>
                             ))}
                         </div>
                     </div>
@@ -77,7 +79,7 @@ const TradeModal: React.FC<TradeModalProps> = ({ onClose, asset, portfolioItem, 
                 {/* Confirm Button */}
                 <button 
                     onClick={handleConfirm} 
-                    disabled={isBuy ? !canAfford : !hasEnoughToSell}
+                    disabled={(orderType === 'spot' && !isBuy) ? !hasEnoughToSell : !canAfford}
                     className={`w-full mt-6 py-3 rounded-md font-bold text-white transition-colors ${isBuy ? 'bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-800' : 'bg-rose-500 hover:bg-rose-600 disabled:bg-rose-800'} disabled:cursor-not-allowed disabled:text-stone-400`}
                 >
                     {t('confirm', language)}

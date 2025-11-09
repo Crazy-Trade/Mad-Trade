@@ -1,6 +1,6 @@
 // game/engine.ts
-// Fix: Imported GlobalFactors type to resolve name not found error.
-import { GameState, Asset, MajorEvent, NewsItem, GlobalFactors } from "./types";
+import { GameState, Asset, MajorEvent, NewsItem, GlobalFactors, Country, Company } from "./types";
+import { t } from './translations';
 
 export const DAY_DURATION_MS = 180000; // 3 minutes at 1x speed
 export const PRICE_UPDATE_INTERVAL_MS = 15000; // 15 seconds
@@ -16,9 +16,10 @@ export function applyIntradayNoise(assets: Record<string, Asset>): Record<string
     for (const assetId in newAssets) {
         const asset = newAssets[assetId];
         const noise = (Math.random() - 0.5) * 2; // -1 to 1
-        // Volatility is a major driver of intraday noise, crypto is much noisier
         const changePercent = noise * asset.volatility * 0.05;
         asset.price *= (1 + changePercent);
+
+        if(asset.price < 0.000001) asset.price = 0;
     }
     return newAssets;
 }
@@ -30,10 +31,8 @@ export function updateAllPrices(state: GameState): Record<string, Asset> {
     const newAssets = { ...state.assets };
     const factorChanges: Record<string, number> = {};
 
-    // For simplicity, we'll simulate some random factor changes each day.
-    // A more complex system would have these driven by events.
     for (const factor in state.globalFactors) {
-        factorChanges[factor] = (Math.random() - 0.5) * 0.1; // Small random change
+        factorChanges[factor] = (Math.random() - 0.5) * 0.1;
     }
 
     for (const assetId in newAssets) {
@@ -51,15 +50,30 @@ export function updateAllPrices(state: GameState): Record<string, Asset> {
 
         const totalChangePercent = (dnaBasedChange / 20) + randomShock + trend;
         
-        // Update base price for the next day
         asset.basePrice *= (1 + totalChangePercent);
-        // Set current price to the new day's base price
         asset.price = asset.basePrice;
-
+        if(asset.price < 0.000001) {
+            asset.price = 0;
+            asset.basePrice = 0;
+        }
         newAssets[assetId] = asset;
     }
     return newAssets;
 }
+
+export const generateElectionEvent = (country: Country, year: number, language: 'en' | 'fa'): MajorEvent => {
+    const isDemocratWinner = Math.random() > 0.5;
+    const winner = isDemocratWinner ? country.politicalParties[0].name : country.politicalParties[1].name;
+    
+    return {
+        title: t('election_title', language, { country: country.name, year }),
+        // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
+        description: t('election_desc' as any, language, { winner }),
+        effects: isDemocratWinner 
+            ? { secRegulation: 0.1, pharmaDemand: 0.05, climateChangeImpact: -0.05, usEconomy: 0.02 } 
+            : { secRegulation: -0.1, oilSupply: 0.05, usEconomy: -0.02, globalStability: -0.05 },
+    };
+};
 
 /**
  * Generates major and minor events for the day.
@@ -68,12 +82,12 @@ export function processEvents(state: GameState): Partial<GameState> {
     const newState: Partial<GameState> = {};
     let newGlobalFactors = { ...state.globalFactors };
     
-    // Placeholder for a much more complex event engine
-    // ~1% chance of a major event each day
     if (Math.random() < 0.01) {
         const majorEvent: MajorEvent = {
-            title: "Global Tech Summit Announces Breakthrough in AI",
-            description: "A major breakthrough in artificial intelligence has been announced, promising to revolutionize various industries. Tech stocks are expected to react strongly.",
+            // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
+            title: t('event_ai_breakthrough_title' as any, state.language),
+            // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
+            description: t('event_ai_breakthrough_desc' as any, state.language),
             effects: { techInnovation: 0.15, publicSentiment: 0.1 }
         };
         newState.majorEventQueue = [...state.majorEventQueue, majorEvent];
@@ -83,39 +97,61 @@ export function processEvents(state: GameState): Partial<GameState> {
         }
     }
 
+    // Scam check
+    const scamAsset = Object.values(state.assets).find(a => a.isScam);
+    if (scamAsset && scamAsset.price > 0.01 && Math.random() < 0.005) { // ~0.5% chance per day
+        const scamEvent: MajorEvent = {
+            // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
+            title: t('event_scam_title' as any, state.language, { assetName: scamAsset.name }),
+            // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
+            description: t('event_scam_desc' as any, state.language, { assetName: scamAsset.name }),
+            effects: { publicSentiment: -0.2, secRegulation: 0.1, russiaEconomy: -0.1 }
+        };
+        newState.majorEventQueue = [...state.majorEventQueue, scamEvent];
+        const newAssets = { ...state.assets };
+        newAssets[scamAsset.id].price = 0.0001;
+        newAssets[scamAsset.id].basePrice = 0.0001;
+        newAssets[scamAsset.id].trend = -1; // Ensure it stays dead
+        newState.assets = newAssets;
+    }
+
+
     newState.globalFactors = newGlobalFactors;
     return newState;
 }
 
-// A pool of low-impact news headlines for daily flavour
-const minorNewsPool: NewsItem[] = [
-    { id: 'mn1', source: 'Market Watch', headline: 'Analysts debate the impact of recent inflation data on consumer spending.' },
-    { id: 'mn2', source: 'Global Trade Org', headline: 'Minor disruptions reported in key shipping lanes, but supply chains remain stable.' },
-    { id: 'mn3', source: 'Tech Chronicle', headline: 'Speculation grows about the next generation of consumer electronics.' },
-    { id: 'mn4', source: 'Energy Tribune', headline: 'OPEC+ meeting concludes with no change to production quotas.' },
-    { id: 'mn5', source: 'Financial Times', headline: 'Central bank hints at maintaining current interest rates for the foreseeable future.' },
-    { id: 'mn6', source: 'Pharma Journal', headline: 'Early-stage clinical trial for a new drug shows promising, but inconclusive, results.' },
-    { id: 'mn7', source: 'World News', headline: 'Diplomatic talks between two nations conclude with a statement of mutual cooperation.' },
-    { id: 'mn8', source: 'Economic Forum', headline: 'New report suggests a slight increase in global manufacturing output.' },
-];
+const minorNewsKeys = ['mn1', 'mn2', 'mn3', 'mn4', 'mn5', 'mn6', 'mn7', 'mn8'];
 
 export function generateDailyNewsSchedule(state: GameState): { schedule: GameState['dailyNewsSchedule'], factors: GlobalFactors } {
     const schedule: GameState['dailyNewsSchedule'] = [];
     const newFactors = { ...state.globalFactors };
-    const numberOfNews = Math.floor(Math.random() * 4) + 1; // 1 to 4 news items
+    const numberOfNews = Math.floor(Math.random() * 4) + 2; // 2 to 5 news items
 
     for (let i = 0; i < numberOfNews; i++) {
-        const randomHour = Math.floor(Math.random() * 16) + 8; // 8 AM to 11 PM
-        const randomNews = minorNewsPool[Math.floor(Math.random() * minorNewsPool.length)];
+        const randomHour = Math.floor(Math.random() * 24);
+        const randomNewsKey = minorNewsKeys[Math.floor(Math.random() * minorNewsKeys.length)];
+        
         schedule.push({
             triggerHour: randomHour,
-            news: { ...randomNews, id: `${randomNews.id}-${state.date.day}-${i}` },
+            news: { 
+                id: `${randomNewsKey}-${state.date.day}-${i}`,
+                headline: t(`${randomNewsKey}_headline` as any, state.language),
+                source: t(`${randomNewsKey}_source` as any, state.language),
+             },
             triggered: false,
         });
     }
     
-    // Very small random impact just for flavour
     newFactors.publicSentiment = Math.max(0, Math.min(1, newFactors.publicSentiment + (Math.random() - 0.5) * 0.01));
 
     return { schedule, factors: newFactors };
+}
+
+export function generatePositiveCompanyNews(company: Company, language: 'en' | 'fa'): NewsItem {
+    const key = `cn${company.type}` as any;
+    return {
+        id: `comp-${company.id}-${Date.now()}`,
+        headline: t(key, language, { companyName: company.name }),
+        source: company.name,
+    };
 }

@@ -28,6 +28,7 @@ export interface Asset {
     volatility: number;
     trend: number; // small positive or negative base trend
     dna: Partial<Record<GlobalFactor, number>>;
+    isScam?: boolean;
 }
 
 export interface PortfolioItem {
@@ -69,6 +70,14 @@ export interface LogEntry {
     type: 'trade' | 'corporate' | 'system' | 'loan' | 'politics';
 }
 
+export interface PendingOrder {
+    id: string;
+    assetId: string;
+    type: 'buy-limit' | 'sell-limit';
+    quantity: number;
+    limitPrice: number;
+}
+
 export interface Player {
     cash: number;
     portfolio: Record<string, PortfolioItem>;
@@ -82,6 +91,7 @@ export interface Player {
     currentResidency: string; // Country ID
     residencyHistory: string[];
     log: LogEntry[];
+    pendingOrders: PendingOrder[];
 }
 
 export interface NewsItem {
@@ -110,6 +120,7 @@ export interface GameState {
     globalFactors: GlobalFactors;
     player: Player;
     newsTicker: NewsItem[];
+    newsArchive: NewsItem[];
     majorEvent: MajorEvent | null;
     majorEventQueue: MajorEvent[];
     dailyNewsSchedule: DailyNewsScheduleItem[];
@@ -126,7 +137,9 @@ export type ModalType =
     | { type: 'upgrade-company'; company: Company }
     | { type: 'politics' }
     | { type: 'immigration' }
-    | { type: 'event-popup'; event: MajorEvent };
+    | { type: 'global-influence' }
+    | { type: 'event-popup'; event: MajorEvent }
+    | { type: 'analyst'; analysisType: 'prediction' | 'analysis' };
 
 export type GameAction =
     | { type: 'LOAD_STATE'; payload: GameState }
@@ -145,8 +158,12 @@ export type GameAction =
     | { type: 'REPAY_LOAN'; payload: number }
     | { type: 'CHANGE_RESIDENCY'; payload: { countryId: string, cost: number } }
     | { type: 'EXECUTE_POLITICAL_ACTION'; payload: PoliticalAction }
+    | { type: 'EXECUTE_GLOBAL_INFLUENCE'; payload: { factor: GlobalFactor, direction: 'promote' | 'disrupt', costPC: number, costCash: number } }
+    | { type: 'ANALYST_REPORT_PURCHASED', payload: { cost: number, message: string } }
     | { type: 'DISMISS_MAJOR_EVENT' }
-    | { type: 'SET_LANGUAGE'; payload: Language };
+    | { type: 'SET_LANGUAGE'; payload: Language }
+    | { type: 'PLACE_PENDING_ORDER'; payload: PendingOrder }
+    | { type: 'CANCEL_PENDING_ORDER'; payload: { orderId: string } };
 
 
 export type PoliticalAction = 
@@ -161,11 +178,12 @@ export interface Country {
     localMarkets: string[]; // Asset IDs
     immigrationCost: number;
     politicalParties: { id: string, name: string }[];
+    electionCycle?: { year: number, month: number, interval: number };
 }
 
 export type AssetCategory = 'Tech' | 'Commodity' | 'Crypto' | 'Pharma' | 'Real Estate' | 'Global' | 'Industrial' | 'Consumer';
 
-export type CompanyType = 'tech' | 'mining' | 'pharma' | 'media';
+export type CompanyType = 'tech' | 'mining' | 'pharma' | 'media' | 'finance' | 'real_estate';
 
 export interface CompanyData {
     baseCost: number;
@@ -223,6 +241,17 @@ export interface TradeModalProps {
 }
 
 // Fix: Removed 'extends ModalProps' and added 'onClose' directly.
+export interface OrderModalProps {
+    onClose: () => void;
+    asset: Asset;
+    portfolioItem: PortfolioItem | undefined;
+    playerCash: number;
+    dispatch: React.Dispatch<GameAction>;
+    language: Language;
+}
+
+
+// Fix: Removed 'extends ModalProps' and added 'onClose' directly.
 export interface CompanyModalProps {
     onClose: () => void;
     companyType: CompanyType;
@@ -251,7 +280,6 @@ export interface PoliticsModalProps {
     language: Language;
 }
 
-// Fix: Removed 'extends ModalProps' and added 'onClose' directly.
 export interface ImmigrationModalProps {
     onClose: () => void;
     dispatch: React.Dispatch<GameAction>;
@@ -262,10 +290,27 @@ export interface ImmigrationModalProps {
     language: Language;
 }
 
+export interface GlobalInfluenceModalProps {
+    onClose: () => void;
+    dispatch: React.Dispatch<GameAction>;
+    politicalCapital: number;
+    playerCash: number;
+    language: Language;
+}
+
 // Fix: Removed 'extends ModalProps' and added 'onClose' directly.
 export interface EventModalProps {
     onClose: () => void;
     event: MajorEvent;
+    language: Language;
+}
+
+export interface AnalystModalProps {
+    onClose: () => void;
+    analysisType: 'prediction' | 'analysis';
+    playerCash: number;
+    assets: Record<string, Asset>;
+    dispatch: React.Dispatch<GameAction>;
     language: Language;
 }
 
@@ -300,10 +345,16 @@ export interface BankViewProps {
     netWorth: number;
     playerCash: number;
     dispatch: React.Dispatch<GameAction>;
+    setActiveModal: (modal: ModalType) => void;
     language: Language;
 }
 
 export interface LogViewProps {
     log: LogEntry[];
+    language: Language;
+}
+
+export interface NewsViewProps {
+    newsArchive: NewsItem[];
     language: Language;
 }
