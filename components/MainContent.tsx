@@ -10,6 +10,7 @@ import LogView from './views/LogView';
 import NewsView from './views/NewsView';
 import TradeModal from './TradeModal';
 import OrderModal from './OrderModal';
+import ChartModal from './ChartModal';
 import CompanyModal from './CompanyModal';
 import UpgradeCompanyModal from './UpgradeCompanyModal';
 import CompanyManagementModal from './CompanyManagementModal';
@@ -68,7 +69,7 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
         <main className="flex-grow p-6 flex flex-col">
             <div className="flex justify-center mb-6">
                 <TimeControls
-                    gameSpeed={gameState.gameSpeed}
+                    isSimulating={gameState.isSimulating}
                     isPaused={gameState.isPaused}
                     dispatch={dispatch}
                     date={gameState.date}
@@ -114,6 +115,13 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
                     portfolioItem={player.portfolio[activeModal.assetId]}
                     playerCash={player.cash}
                     dispatch={dispatch}
+                    language={language}
+                />
+            )}
+            {activeModal?.type === 'chart' && assets[activeModal.assetId] && (
+                <ChartModal
+                    onClose={() => setActiveModal(null)}
+                    asset={assets[activeModal.assetId]}
                     language={language}
                 />
             )}

@@ -56,6 +56,7 @@ const MarketsView: React.FC<MarketsViewProps> = ({ assets, residency, setActiveM
                                             <div className="flex justify-end space-x-2">
                                                 <button onClick={() => setActiveModal({ type: 'trade', assetId: asset.id })} className="font-semibold text-sky-400 hover:text-sky-300">{t('trade', language)}</button>
                                                 <button onClick={() => setActiveModal({ type: 'order', assetId: asset.id })} className="font-semibold text-stone-400 hover:text-stone-300">{t('order', language)}</button>
+                                                <button onClick={() => setActiveModal({ type: 'chart', assetId: asset.id })} className="font-semibold text-amber-400 hover:text-amber-300">{t('chart', language)}</button>
                                             </div>
                                         )}
                                     </td>

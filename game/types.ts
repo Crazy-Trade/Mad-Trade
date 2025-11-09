@@ -19,6 +19,10 @@ export type GlobalFactor =
 
 export type GlobalFactors = Record<GlobalFactor, number>;
 
+export interface PriceHistory {
+    date: { year: number, month: number, day: number };
+    price: number;
+}
 export interface Asset {
     id: string;
     name: string;
@@ -28,6 +32,7 @@ export interface Asset {
     volatility: number;
     trend: number; // small positive or negative base trend
     dna: Partial<Record<GlobalFactor, number>>;
+    priceHistory: PriceHistory[];
     isScam?: boolean;
 }
 
@@ -120,6 +125,7 @@ export interface GameState {
     date: GameDate;
     gameSpeed: number; // 1, 2, 5, etc.
     isPaused: boolean;
+    isSimulating: boolean; // For showing loading states on long skips
     assets: Record<string, Asset>;
     globalFactors: GlobalFactors;
     player: Player;
@@ -137,6 +143,7 @@ export type ModalType =
     | { type: 'country-selection' }
     | { type: 'trade'; assetId: string }
     | { type: 'order'; assetId: string }
+    | { type: 'chart'; assetId: string }
     | { type: 'company'; companyType: CompanyType }
     | { type: 'upgrade-company'; company: Company } // Kept for simplicity, though management modal is primary
     | { type: 'company-management'; company: Company }
@@ -160,7 +167,7 @@ export type GameAction =
     | { type: 'SET_SPEED'; payload: number }
     | { type: 'TICK'; payload: { deltaTime: number } }
     | { type: 'ADVANCE_DAY' }
-    | { type: 'SKIP_TO_NEXT_DAY' }
+    | { type: 'SKIP_DAYS'; payload: { days: number } }
     | { type: 'SET_INITIAL_STATE'; payload: { countryId: string, playerName: string } }
     | { type: 'SPOT_TRADE'; payload: { assetId: string; quantity: number; price: number; type: 'buy' | 'sell' } }
     | { type: 'OPEN_MARGIN_POSITION'; payload: { assetId: string; quantity: number; price: number; leverage: number; type: 'long' | 'short' } }
@@ -225,7 +232,7 @@ export interface HeaderProps {
 }
 
 export interface TimeControlsProps {
-    gameSpeed: number;
+    isSimulating: boolean;
     isPaused: boolean;
     dispatch: React.Dispatch<GameAction>;
     date: GameDate;
@@ -267,6 +274,11 @@ export interface OrderModalProps {
     language: Language;
 }
 
+export interface ChartModalProps {
+    onClose: () => void;
+    asset: Asset;
+    language: Language;
+}
 
 export interface CompanyModalProps {
     onClose: () => void;

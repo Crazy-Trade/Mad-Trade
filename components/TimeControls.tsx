@@ -1,20 +1,25 @@
 // components/TimeControls.tsx
 import React from 'react';
 import { GameAction, TimeControlsProps } from '../game/types';
-import { PlayIcon, PauseIcon, ForwardIcon, SpeedIcon } from './Icons';
+import { PlayIcon, PauseIcon } from './Icons';
 import { t } from '../game/translations';
 
-const TimeControls: React.FC<TimeControlsProps> = ({ gameSpeed, isPaused, dispatch, date, language }) => {
-    const speeds = [1, 2, 5, 10, 25, 50, 100];
-    const currentSpeedIndex = speeds.indexOf(gameSpeed);
+const TimeControls: React.FC<TimeControlsProps> = ({ isSimulating, isPaused, dispatch, date, language }) => {
     
-    const handleSetSpeed = () => {
-        const nextSpeedIndex = (currentSpeedIndex + 1) % speeds.length;
-        dispatch({ type: 'SET_SPEED', payload: speeds[nextSpeedIndex] });
+    const handleSkip = (days: number) => {
+        dispatch({ type: 'SKIP_DAYS', payload: { days } });
     };
 
-    const handleSkipDay = () => {
-        dispatch({ type: 'SKIP_TO_NEXT_DAY' });
+    if (isSimulating) {
+        return (
+             <div className="flex items-center justify-center space-x-2">
+                 <div className="bg-stone-800 rounded-md p-2 text-center">
+                    <div className="font-mono text-lg text-amber-400 animate-pulse">
+                        Simulating...
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -33,18 +38,28 @@ const TimeControls: React.FC<TimeControlsProps> = ({ gameSpeed, isPaused, dispat
                 >
                     {isPaused ? <PlayIcon /> : <PauseIcon />}
                 </button>
+            </div>
+             <div className="flex items-center bg-stone-800 rounded-md text-sm font-bold">
                 <button
                     title={t('skipDay', language)}
-                    onClick={handleSkipDay}
+                    onClick={() => handleSkip(1)}
+                    className="p-2 text-stone-300 hover:text-amber-400 transition-colors"
+                >
+                    {t('skipDay', language)}
+                </button>
+                 <button
+                    title={t('skip1Week', language)}
+                    onClick={() => handleSkip(7)}
                     className="p-2 text-stone-300 hover:text-amber-400 transition-colors border-l border-stone-700"
                 >
-                    <ForwardIcon />
+                    {t('skip1Week', language)}
                 </button>
                 <button
-                    onClick={handleSetSpeed}
-                    className="p-2 text-stone-300 hover:text-amber-400 transition-colors border-l border-stone-700 font-mono w-12"
+                    title={t('skip2Weeks', language)}
+                    onClick={() => handleSkip(14)}
+                    className="p-2 text-stone-300 hover:text-amber-400 transition-colors border-l border-stone-700"
                 >
-                    x{gameSpeed}
+                    {t('skip2Weeks', language)}
                 </button>
             </div>
         </div>

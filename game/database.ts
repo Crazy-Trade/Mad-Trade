@@ -21,7 +21,7 @@ export const COUNTRIES: Country[] = [
     { id: 'SAU', name: 'Saudi Arabia', taxRate: 0.20, companyCostModifier: 1.1, localMarkets: ['RUH_RealEstate', 'SAOC'], immigrationCost: 16000000, politicalParties: [{id: 'monarchy', name: 'Monarchy'}] },
 ];
 
-const ASSETS_LIST: Asset[] = [
+const ASSETS_LIST: Omit<Asset, 'priceHistory'>[] = [
     // Commodities
     { id: 'OIL', name: 'Crude Oil', category: 'Commodity', price: 75, basePrice: 75, volatility: 0.03, trend: 0.0001, dna: { globalStability: -0.8, usEconomy: 0.5, chinaEconomy: 0.6, middleEastTension: 1.5, oilSupply: -2.0, russiaEconomy: 0.7 } },
     { id: 'GOLD', name: 'Gold', category: 'Commodity', price: 1800, basePrice: 1800, volatility: 0.015, trend: 0, dna: { globalStability: -1.5, usFedPolicy: -1.2, inflation: 1.0, publicSentiment: -0.5 } },
@@ -98,7 +98,7 @@ const ASSETS_LIST: Asset[] = [
 ];
 
 export const ASSETS: Record<string, Asset> = ASSETS_LIST.reduce((acc, asset) => {
-    acc[asset.id] = asset;
+    acc[asset.id] = { ...asset, priceHistory: [] };
     return acc;
 }, {} as Record<string, Asset>);
 
@@ -124,6 +124,7 @@ export const getInitialState = (): GameState => {
         date: { year: 2024, month: 1, day: 1, hour: 0, dayProgress: 0 },
         gameSpeed: 1,
         isPaused: true,
+        isSimulating: false,
         assets: JSON.parse(JSON.stringify(ASSETS)), // Deep copy
         globalFactors: initialGlobalFactors,
         player: {

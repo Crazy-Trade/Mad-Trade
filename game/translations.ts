@@ -40,11 +40,14 @@ const translations: Record<Language, Record<string, string>> = {
         acknowledge: 'Acknowledge',
         electionResults: 'Election Results',
         manage: 'Manage',
+        chart: 'Chart',
 
         // Header & Time
         play: 'Play',
         pause: 'Pause',
         skipDay: 'Skip Day',
+        skip1Week: 'Skip 1 Week',
+        skip2Weeks: 'Skip 2 Weeks',
         
         // Country Selection
         selectCountry: 'Select a Country of Origin',
@@ -226,6 +229,13 @@ const translations: Record<Language, Record<string, string>> = {
         quitConfirmation: 'Are you sure you want to quit? Your progress will be saved, but you will return to the main menu.',
         deleteConfirmation: 'Are you sure you want to permanently delete your save data? This action cannot be undone.',
 
+        // Charting
+        priceChart: 'Price Chart',
+        threeDays: '3D',
+        oneWeek: '1W',
+        oneYear: '1Y',
+        noData: 'Not enough historical data.',
+
     },
     fa: {
         // General
@@ -265,11 +275,14 @@ const translations: Record<Language, Record<string, string>> = {
         acknowledge: 'متوجه شدم',
         electionResults: 'نتایج انتخابات',
         manage: 'مدیریت',
+        chart: 'نمودار',
 
         // Header & Time
         play: 'پخش',
         pause: 'توقف',
         skipDay: 'رد کردن روز',
+        skip1Week: 'رد کردن ۱ هفته',
+        skip2Weeks: 'رد کردن ۲ هفته',
 
         // Country Selection
         selectCountry: 'یک کشور مبدا انتخاب کنید',
@@ -449,6 +462,13 @@ const translations: Record<Language, Record<string, string>> = {
         saveConfirmation: 'بازی ذخیره شد!',
         quitConfirmation: 'آیا مطمئن هستید که می‌خواهید خارج شوید؟ پیشرفت شما ذخیره می‌شود، اما به منوی اصلی باز خواهید گشت.',
         deleteConfirmation: 'آیا مطمئن هستید که می‌خواهید داده‌های ذخیره شده خود را برای همیشه حذف کنید؟ این عمل قابل بازگشت نیست.',
+
+        // Charting
+        priceChart: 'نمودار قیمت',
+        threeDays: '۳ روز',
+        oneWeek: '۱ هفته',
+        oneYear: '۱ سال',
+        noData: 'داده تاریخی کافی وجود ندارد.',
     },
 };
 

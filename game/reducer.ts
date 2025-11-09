@@ -1,8 +1,152 @@
 // game/reducer.ts
-import { GameState, GameAction, PortfolioItem, MarginPosition, Company, LogEntry, CompanyEffect, UpgradeOutcome, GlobalFactor, AssetCategory, CorporateAction, CompanyEffectType } from './types';
+import { GameState, GameAction, PortfolioItem, MarginPosition, Company, LogEntry, CompanyEffect, UpgradeOutcome, GlobalFactor, AssetCategory, CorporateAction, CompanyEffectType, Asset } from './types';
 import { getInitialState, COMPANY_TYPES, COUNTRIES, ASSETS } from './database';
 import { DAY_DURATION_MS, PRICE_UPDATE_INTERVAL_MS, applyIntradayNoise, updateAllPrices, processEvents, generateDailyNewsSchedule, generateElectionEvent, generatePositiveCompanyNews } from './engine';
 import { t } from './translations';
+
+const MAX_HISTORY = 365; // Store up to 1 year of price data
+
+const advanceDayCycle = (state: GameState): GameState => {
+    const nextDay = new Date(state.date.year, state.date.month - 1, state.date.day + 1);
+            
+    let playerCash = state.player.cash;
+    const newCompanies = JSON.parse(JSON.stringify(state.player.companies)) as Company[];
+    let newLog = [...state.player.log];
+    let newLoan = { ...state.player.loan };
+
+    if (nextDay.getDate() === 1) { // Monthly tasks
+        const country = COUNTRIES.find(c => c.id === state.player.currentResidency);
+        const countryTax = country?.taxRate || 0;
+
+        // Corporate Income & Taxes
+        let totalIncome = 0;
+        newCompanies.forEach(company => {
+            let companyIncome = company.monthlyIncome;
+            let effectiveTaxRate = countryTax;
+            
+            // Process effects
+            const newEffects: CompanyEffect[] = [];
+            company.effects.forEach(effect => {
+                if (effect.type === 'income_halt') {
+                    companyIncome = 0;
+                }
+                if (effect.type === 'tax_break') {
+                    effectiveTaxRate *= 0.5; // 50% tax break
+                }
+                
+                effect.durationMonths -= 1;
+                if (effect.durationMonths > 0) {
+                    newEffects.push(effect);
+                } else {
+                    newLog.push({id: crypto.randomUUID(), date: state.date, type: 'corporate', message: `Effect '${effect.type}' has expired for ${company.name}.`});
+                }
+            });
+            company.effects = newEffects;
+            
+            totalIncome += companyIncome;
+            const taxAmount = companyIncome * effectiveTaxRate;
+            playerCash -= taxAmount;
+            if(taxAmount > 0) {
+                newLog.push({id: crypto.randomUUID(), date: state.date, type: 'corporate', message: `Paid $${taxAmount.toFixed(2)} in taxes for ${company.name}.`});
+            }
+        });
+        playerCash += totalIncome;
+        if(totalIncome > 0) {
+            newLog.push({id: crypto.randomUUID(), date: state.date, type: 'corporate', message: `Received $${totalIncome.toFixed(2)} in monthly income.`});
+        }
+        
+        // Loan Payment Logic
+        if (newLoan.amount > 0) {
+            if (newLoan.isDeferredThisMonth) {
+                const penalty = 2299;
+                playerCash -= penalty;
+                newLoan.interestRate += 0.0015; // Changed from 1.5% to 0.15% monthly
+                newLoan.defermentsUsed += 1;
+                newLoan.isDeferredThisMonth = false; // Reset for next month
+                newLog.push({id: crypto.randomUUID(), date: state.date, type: 'loan', message: t('loanDefermentPenalty', state.language, { penalty: penalty.toFixed(2)})});
+            } else {
+                const monthlyInterest = newLoan.amount * (newLoan.interestRate / 12);
+                const principalPayment = newLoan.amount * 0.02; // Pay 2% of principal each month
+                const totalPayment = monthlyInterest + principalPayment;
+
+                if (playerCash >= totalPayment) {
+                    playerCash -= totalPayment;
+                    newLoan.amount -= principalPayment;
+                    newLog.push({id: crypto.randomUUID(), date: state.date, type: 'loan', message: t('monthlyLoanPayment', state.language, {amount: totalPayment.toFixed(2)})});
+                } else {
+                    // Not enough cash for payment - could add a penalty here in future
+                    newLog.push({id: crypto.randomUUID(), date: state.date, type: 'system', message: `Failed to make monthly loan payment of $${totalPayment.toFixed(2)} due to insufficient funds.`});
+                }
+            }
+        }
+    }
+
+    const eventsResult = processEvents(state);
+    const newsScheduleResult = generateDailyNewsSchedule(state);
+
+    // Check for elections
+    for (const country of COUNTRIES) {
+        if (country.electionCycle && (nextDay.getFullYear() % country.electionCycle.interval === 0) && country.electionCycle.year <= nextDay.getFullYear() && country.electionCycle.month === (nextDay.getMonth() + 1)) {
+            const electionEvent = generateElectionEvent(country, nextDay.getFullYear(), state.language);
+            eventsResult.majorEventQueue = [...(eventsResult.majorEventQueue || []), electionEvent];
+        }
+    }
+    
+    // Player company influence
+    newCompanies.forEach(company => {
+        if (company.level >= 5) {
+            const influenceChance = (company.level - 4) * 0.02; // 2% chance per level above 4
+            if (Math.random() < influenceChance) {
+                const positiveNews = generatePositiveCompanyNews(company, state.language);
+                newsScheduleResult.schedule.push({
+                    triggerHour: Math.floor(Math.random() * 12) + 8,
+                    news: positiveNews,
+                    triggered: false,
+                });
+            }
+        }
+    });
+
+    const newNewsArchive = [...state.newsTicker, ...state.newsArchive].slice(0, 50);
+
+    const priceUpdatedState = { ...state, ...eventsResult };
+    const newAssets = updateAllPrices(priceUpdatedState);
+
+    // --- RECORD PRICE HISTORY ---
+    const dateRecord = { year: state.date.year, month: state.date.month, day: state.date.day };
+    for (const assetId in newAssets) {
+        const asset = newAssets[assetId];
+        asset.priceHistory.push({ date: dateRecord, price: asset.price });
+        if (asset.priceHistory.length > MAX_HISTORY) {
+            asset.priceHistory.shift();
+        }
+    }
+
+    return {
+        ...state,
+        date: {
+            year: nextDay.getFullYear(),
+            month: nextDay.getMonth() + 1,
+            day: nextDay.getDate(),
+            hour: 0,
+            dayProgress: 0,
+        },
+        assets: newAssets,
+        globalFactors: newsScheduleResult.factors,
+        majorEvent: eventsResult.majorEventQueue.length > 0 ? eventsResult.majorEventQueue[0] : null,
+        majorEventQueue: eventsResult.majorEventQueue.slice(1),
+        dailyNewsSchedule: newsScheduleResult.schedule,
+        newsTicker: [],
+        newsArchive: newNewsArchive,
+        player: {
+            ...state.player,
+            cash: playerCash,
+            companies: newCompanies,
+            loan: newLoan,
+            log: newLog,
+        },
+    };
+};
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
     switch (action.type) {
@@ -29,7 +173,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             };
         
         case 'TICK': {
-            if (state.isPaused) return state;
+            if (state.isPaused || state.isSimulating) return state;
 
             const { deltaTime } = action.payload;
             const newDayProgress = state.date.dayProgress + (deltaTime * state.gameSpeed) / DAY_DURATION_MS;
@@ -144,140 +288,19 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         }
         
         case 'ADVANCE_DAY': {
-            const nextDay = new Date(state.date.year, state.date.month - 1, state.date.day + 1);
-            
-            let playerCash = state.player.cash;
-            const newCompanies = JSON.parse(JSON.stringify(state.player.companies)) as Company[];
-            let newLog = [...state.player.log];
-            let newLoan = { ...state.player.loan };
-
-            if (nextDay.getDate() === 1) { // Monthly tasks
-                const country = COUNTRIES.find(c => c.id === state.player.currentResidency);
-                const countryTax = country?.taxRate || 0;
-
-                // Corporate Income & Taxes
-                let totalIncome = 0;
-                newCompanies.forEach(company => {
-                    let companyIncome = company.monthlyIncome;
-                    let effectiveTaxRate = countryTax;
-                    
-                    // Process effects
-                    const newEffects: CompanyEffect[] = [];
-                    company.effects.forEach(effect => {
-                        if (effect.type === 'income_halt') {
-                            companyIncome = 0;
-                        }
-                        if (effect.type === 'tax_break') {
-                            effectiveTaxRate *= 0.5; // 50% tax break
-                        }
-                        
-                        effect.durationMonths -= 1;
-                        if (effect.durationMonths > 0) {
-                            newEffects.push(effect);
-                        } else {
-                            newLog.push({id: crypto.randomUUID(), date: state.date, type: 'corporate', message: `Effect '${effect.type}' has expired for ${company.name}.`});
-                        }
-                    });
-                    company.effects = newEffects;
-                    
-                    totalIncome += companyIncome;
-                    const taxAmount = companyIncome * effectiveTaxRate;
-                    playerCash -= taxAmount;
-                    if(taxAmount > 0) {
-                        newLog.push({id: crypto.randomUUID(), date: state.date, type: 'corporate', message: `Paid $${taxAmount.toFixed(2)} in taxes for ${company.name}.`});
-                    }
-                });
-                playerCash += totalIncome;
-                if(totalIncome > 0) {
-                    newLog.push({id: crypto.randomUUID(), date: state.date, type: 'corporate', message: `Received $${totalIncome.toFixed(2)} in monthly income.`});
-                }
-                
-                // Loan Payment Logic
-                if (newLoan.amount > 0) {
-                    if (newLoan.isDeferredThisMonth) {
-                        const penalty = 2299;
-                        playerCash -= penalty;
-                        newLoan.interestRate += 0.0015; // Changed from 1.5% to 0.15% monthly
-                        newLoan.defermentsUsed += 1;
-                        newLoan.isDeferredThisMonth = false; // Reset for next month
-                        newLog.push({id: crypto.randomUUID(), date: state.date, type: 'loan', message: t('loanDefermentPenalty', state.language, { penalty: penalty.toFixed(2)})});
-                    } else {
-                        const monthlyInterest = newLoan.amount * (newLoan.interestRate / 12);
-                        const principalPayment = newLoan.amount * 0.02; // Pay 2% of principal each month
-                        const totalPayment = monthlyInterest + principalPayment;
-
-                        if (playerCash >= totalPayment) {
-                            playerCash -= totalPayment;
-                            newLoan.amount -= principalPayment;
-                            newLog.push({id: crypto.randomUUID(), date: state.date, type: 'loan', message: t('monthlyLoanPayment', state.language, {amount: totalPayment.toFixed(2)})});
-                        } else {
-                           // Not enough cash for payment - could add a penalty here in future
-                           newLog.push({id: crypto.randomUUID(), date: state.date, type: 'system', message: `Failed to make monthly loan payment of $${totalPayment.toFixed(2)} due to insufficient funds.`});
-                        }
-                    }
-                }
-            }
-
-            const eventsResult = processEvents(state);
-            const newsScheduleResult = generateDailyNewsSchedule(state);
-
-            // Check for elections
-            for (const country of COUNTRIES) {
-                if (country.electionCycle && (nextDay.getFullYear() % country.electionCycle.interval === 0) && country.electionCycle.year <= nextDay.getFullYear() && country.electionCycle.month === (nextDay.getMonth() + 1)) {
-                    const electionEvent = generateElectionEvent(country, nextDay.getFullYear(), state.language);
-                    eventsResult.majorEventQueue = [...(eventsResult.majorEventQueue || []), electionEvent];
-                }
-            }
-            
-            // Player company influence
-            newCompanies.forEach(company => {
-                if (company.level >= 5) {
-                    const influenceChance = (company.level - 4) * 0.02; // 2% chance per level above 4
-                    if (Math.random() < influenceChance) {
-                        const positiveNews = generatePositiveCompanyNews(company, state.language);
-                        newsScheduleResult.schedule.push({
-                            triggerHour: Math.floor(Math.random() * 12) + 8,
-                            news: positiveNews,
-                            triggered: false,
-                        });
-                    }
-                }
-            });
-
-            const newNewsArchive = [...state.newsTicker, ...state.newsArchive].slice(0, 50);
-
-            return {
-                ...state,
-                date: {
-                    year: nextDay.getFullYear(),
-                    month: nextDay.getMonth() + 1,
-                    day: nextDay.getDate(),
-                    hour: 0,
-                    dayProgress: 0,
-                },
-                assets: updateAllPrices({ ...state, ...eventsResult }),
-                globalFactors: newsScheduleResult.factors,
-                ...eventsResult,
-                majorEvent: state.majorEventQueue.length > 0 ? state.majorEventQueue[0] : null,
-                majorEventQueue: state.majorEventQueue.slice(1),
-                dailyNewsSchedule: newsScheduleResult.schedule,
-                newsTicker: [],
-                newsArchive: newNewsArchive,
-                player: {
-                    ...state.player,
-                    cash: playerCash,
-                    companies: newCompanies,
-                    loan: newLoan,
-                    log: newLog,
-                },
-            };
+            return advanceDayCycle(state);
         }
 
-        case 'SKIP_TO_NEXT_DAY':
-            return {
-                ...state,
-                date: { ...state.date, dayProgress: 1 }
-            };
+        case 'SKIP_DAYS': {
+            const { days } = action.payload;
+            let intermediateState: GameState = { ...state, isSimulating: true, isPaused: true };
+            
+            for (let i = 0; i < days; i++) {
+                intermediateState = advanceDayCycle(intermediateState);
+            }
+
+            return { ...intermediateState, isSimulating: false, isPaused: false };
+        }
 
         case 'SET_INITIAL_STATE': {
             const { countryId, playerName } = action.payload;
@@ -555,7 +578,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                 id: crypto.randomUUID(),
                 date: state.date,
                 type: 'loan',
-                message: t('loanRepaymentDiscount', state.language, { amount: amountToClear.toFixed(2), savedAmount: bonusAmount.toFixed(2) })
+                message: t('loanRepaymentDiscount', state.language, { amount: amountToClear.toFixed(2), savedAmount: bonusAmount.toFixed(2), paidAmount: amountToPay.toFixed(2) })
             };
             
             return {
