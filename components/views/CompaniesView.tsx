@@ -23,19 +23,27 @@ const CompaniesView: React.FC<CompaniesViewProps> = ({ companies, playerCash, se
                             </tr>
                         </thead>
                         <tbody>
-                            {companies.map(company => (
+                            {companies.map(company => {
+                                const canManage = company.level >= 4;
+                                return (
                                 <tr key={company.id} className="border-b border-stone-800 hover:bg-stone-800/50">
                                     <th scope="row" className="px-6 py-4 font-bold text-stone-200">{company.name}</th>
                                     <td className="px-6 py-4">{t(company.type, language)}</td>
                                     <td className="px-6 py-4">{company.level}</td>
                                     <td className="px-6 py-4 font-mono text-emerald-400">{formatCurrency(company.monthlyIncome)}</td>
                                     <td className="px-6 py-4 text-right">
-                                        <button onClick={() => setActiveModal({ type: 'upgrade-company', company })} className="font-semibold text-violet-400 hover:text-violet-300">
-                                            {t('upgrade', language)}
-                                        </button>
+                                        {canManage ? (
+                                             <button onClick={() => setActiveModal({ type: 'company-management', company })} className="font-semibold text-amber-400 hover:text-amber-300">
+                                                {t('manage', language)}
+                                            </button>
+                                        ) : (
+                                            <button onClick={() => setActiveModal({ type: 'upgrade-company', company })} className="font-semibold text-violet-400 hover:text-violet-300">
+                                                {t('upgrade', language)}
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
-                            ))}
+                            )})}
                         </tbody>
                     </table>
                 </div>

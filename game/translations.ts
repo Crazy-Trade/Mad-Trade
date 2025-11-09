@@ -1,74 +1,80 @@
 // game/translations.ts
 import { Language } from './types';
 
-const translations = {
+const translations: Record<Language, Record<string, string>> = {
     en: {
         // General
         cash: 'Cash',
         netWorth: 'Net Worth',
         date: 'Date',
-        close: 'Close',
+        language: 'فارسی',
+        buy: 'Buy',
+        sell: 'Sell',
+        short: 'Short',
         confirm: 'Confirm',
-        cancel: 'Cancel',
-        error: 'Error',
-        success: 'Success',
-        notEnoughCash: 'Not enough cash.',
-        positive: 'positive',
-        negative: 'negative',
-        rise: 'RISE',
-        fall: 'FALL',
+        trade: 'Trade',
+        quantity: 'Quantity',
+        max: 'Max',
+        leverage: 'Leverage',
+        price: 'Price',
+        total: 'Total',
+        margin: 'Margin',
+        order: 'Order',
+        placeOrder: 'Place Order',
+        cost: 'Cost',
+        upgrade: 'Upgrade',
+        all: 'All',
+        assets: 'Assets',
+        change24h: '24h Change',
+        actions: 'Actions',
+        marketLocked: 'Market Locked',
+        type: 'Type',
+        level: 'Level',
+        monthlyIncome: 'Monthly Income',
+        establish: 'Establish',
+        pc: 'PC',
+        promote: 'Promote',
+        disrupt: 'Disrupt',
+        close: 'Close',
+        pnl: 'P/L',
+        acknowledge: 'Acknowledge',
+        electionResults: 'Election Results',
+        manage: 'Manage',
 
-        // Header
-        language: 'FA',
-
+        // Header & Time
+        play: 'Play',
+        pause: 'Pause',
+        skipDay: 'Skip Day',
+        
+        // Country Selection
+        selectCountry: 'Select a Country of Origin',
+        enterYourName: 'Enter Your Name',
+        taxRate: 'Tax Rate',
+        companyCost: 'Company Cost',
+        
         // Tabs
         markets: 'Markets',
         portfolio: 'Portfolio',
         corporate: 'Corporate',
         politics: 'Politics',
         bank: 'Bank',
-        log: 'Log',
         news: 'News',
-
-        // Country Selection
-        selectCountry: 'Select Starting Country',
-        startAs: 'Start as',
-        taxRate: 'Tax Rate',
-        companyCost: 'Company Cost',
-        localMarkets: 'Local Markets',
+        log: 'Log',
         
-        // Markets View
-        all: 'All',
-        assets: 'Assets',
-        price: 'Price',
-        change24h: '24h Change',
-        actions: 'Actions',
-        trade: 'Trade',
-        order: 'Order',
-        marketLocked: 'Market Locked',
-
         // Portfolio View
         spotHoldings: 'Spot Holdings',
-        quantity: 'Quantity',
         avgCost: 'Avg. Cost',
         marketValue: 'Market Value',
-        unrealizedPNL: 'Unrealized P/L',
+        unrealizedPNL: 'Unrealized PNL',
         marginPositions: 'Margin Positions',
         entryPrice: 'Entry Price',
-        leverage: 'Leverage',
         liquidationPrice: 'Liq. Price',
-        pnl: 'P/L',
         pendingOrders: 'Pending Orders',
 
         // Corporate View
         corporateHoldings: 'Corporate Holdings',
-        establishCompany: 'Establish New Company',
         companyName: 'Company Name',
-        type: 'Type',
-        level: 'Level',
-        monthlyIncome: 'Monthly Income',
-        upgrade: 'Upgrade',
-        establish: 'Establish',
+        establishCompany: 'Establish New Company',
         
         // Politics View
         nationalPolitics: 'National Politics',
@@ -78,77 +84,61 @@ const translations = {
         politicalActions: 'Political Actions',
         donateToParty: 'Donate to Party',
         localLobbying: 'Local Lobbying',
-        globalOperations: 'Global Influence Operations',
+        globalOperations: 'Global Operations',
         changeResidency: 'Change Residency',
+        globalInfluence: 'Global Influence',
 
         // Bank View
         bankingServices: 'Banking Services',
         currentLoan: 'Current Loan',
-        interestRate: 'Interest Rate (Annual)',
+        interestRate: 'Interest Rate',
         loanLimit: 'Loan Limit',
-        takeLoan: 'Take Loan',
-        repayLoan: 'Repay Loan',
-        amount: 'Amount',
         analyst: 'Analyst',
         marketPrediction: 'Market Prediction',
         trendAnalysis: 'Trend Analysis',
-        hireAnalyst: 'Hire Analyst',
-        
-        // Log View
+        takeLoan: 'Take Loan',
+        repayLoan: 'Repay Loan',
+        deferPayment: "Defer This Month's Payment",
+        defermentsRemaining: "{count} deferments remaining",
+        noDeferments: "No deferments remaining",
+        monthlyPayment: 'Est. Monthly Payment',
+
+        // Log & News
         eventLog: 'Event Log',
-        
-        // News View
         newsArchive: 'News Archive',
         noNews: 'No news to display.',
-
-        // Modals
-        tradeAsset: 'Trade Asset',
-        buy: 'Buy',
-        sell: 'Sell',
-        short: 'Short',
-        total: 'Total',
-        max: 'Max',
-        margin: 'Margin',
-        placeOrder: 'Place Order',
+        breakingNews: 'BREAKING NEWS',
         
+        // Modals
         establishNewCompany: 'Establish New Company',
         companyType: 'Company Type',
-        tech: 'Tech Startup',
-        mining: 'Mining Operation',
-        pharma: 'Pharmaceutical Lab',
-        media: 'Media Group',
-        finance: 'Finance Group',
-        real_estate: 'Real Estate Development',
-        cost: 'Cost',
-
-        upgradeCompany: 'Upgrade Company',
+        upgradeCost: 'Upgrade Cost',
         currentLevel: 'Current Level',
         nextLevel: 'Next Level',
-        upgradeCost: 'Upgrade Cost',
-        newIncome: 'New Monthly Income',
-
+        newIncome: 'New Income',
         immigration: 'Immigration',
-        applyForResidency: 'Apply for Residency in another country',
+        applyForResidency: 'Apply for Residency',
         residencyCost: 'Residency Cost',
-        minNetWorth: 'Minimum Net Worth',
+        minNetWorth: 'Min. Net Worth',
         apply: 'Apply',
-
         donate: 'Donate',
-        party: 'Party',
-
-        breakingNews: 'BREAKING NEWS',
-        acknowledge: 'Acknowledge',
-
-        analystReport: 'Analyst Report',
-        selectAsset: 'Select an asset for analysis',
-        getAnalysis: 'Get Analysis',
-        getPrediction: 'Get Prediction',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        analyst_prediction_log: 'Analyst Prediction: Our models suggest ${{assetName}} is likely to ${{prediction}} in the short term.',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        analyst_analysis_log: 'Analyst Analysis for ${{assetName}}: The primary driver for this asset is its ${{impact}} correlation with ${{driver}}.',
         
-        // Global Factors (user-friendly names)
+        // Asset Categories
+        tech: 'Tech',
+        commodity: 'Commodity',
+        crypto: 'Crypto',
+        pharma: 'Pharma',
+        real_estate: 'Real Estate',
+        global: 'Global',
+        industrial: 'Industrial',
+        consumer: 'Consumer',
+        
+        // Company Types (matches asset categories where possible)
+        mining: 'Mining',
+        media: 'Media',
+        finance: 'Finance',
+        
+        // Global Factors
         globalstability: 'Global Stability',
         useconomy: 'US Economy',
         chinaeconomy: 'China Economy',
@@ -168,136 +158,148 @@ const translations = {
         climatechangeimpact: 'Climate Change Impact',
         pharmademand: 'Pharma Demand',
         inflation: 'Inflation',
-        
-        // Global Influence Modal
-        globalInfluence: 'Global Influence Operations',
-        promote: 'Promote',
-        disrupt: 'Disrupt',
-        pc: 'PC',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        influence_success: 'SUCCESS: Our operation to ${{direction}} ${{factor}} has yielded the desired results.',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        influence_fail: 'FAILURE: Our operation to ${{direction}} ${{factor}} failed to produce any significant effect.',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        influence_backfire: 'DISASTER: Our operation to ${{direction}} ${{factor}} has backfired, causing the opposite effect!',
 
-        // Time Controls
-        skipDay: 'Skip to Next Day',
-        play: 'Play',
-        pause: 'Pause',
+        // Influence Actions
+        influence_success: 'Operation success: You successfully influenced {factor} to {direction}.',
+        influence_fail: 'Operation failed: Your attempt to influence {factor} had no effect.',
+        influence_backfire: 'Operation backfired! Your attempt to influence {factor} had the opposite effect.',
 
-        // Events
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        election_title: '${{country}} ${{year}} Presidential Election Results',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        election_desc: 'After a heated election season, ${{winner}} has been declared the winner. Markets are expected to react to the new administration\'s anticipated policies.',
-        event_ai_breakthrough_title: "Global Tech Summit Announces Breakthrough in AI",
-        event_ai_breakthrough_desc: "A major breakthrough in artificial intelligence has been announced, promising to revolutionize various industries. Tech stocks are expected to react strongly.",
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        event_scam_title: "Fraud Allegations Surface Around ${{assetName}}",
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        event_scam_desc: "Regulators have frozen trading for ${{assetName}} amid widespread allegations of fraud. The company's value has plummeted as investors rush to exit.",
+        // Analyst Reports
+        analystPredictionReport: 'Our analysis indicates a {trend} trend for {assetName}. The strength and duration of this trend are currently uncertain.',
+        analystTrendReport: '{assetName} is primarily driven by a {driver1_direction} influence from {driver1} and a {driver2_direction} influence from {driver2}.',
+        positive: 'positive',
+        negative: 'negative',
         
-        // News Ticker
-        mn1_headline: 'Analysts debate the impact of recent inflation data on consumer spending.',
-        mn1_source: 'Market Watch',
-        mn2_headline: 'Minor disruptions reported in key shipping lanes, but supply chains remain stable.',
-        mn2_source: 'Global Trade Org',
-        mn3_headline: 'Speculation grows about the next generation of consumer electronics.',
-        mn3_source: 'Tech Chronicle',
-        mn4_headline: 'OPEC+ meeting concludes with no change to production quotas.',
-        mn4_source: 'Energy Tribune',
-        mn5_headline: 'Central bank hints at maintaining current interest rates for the foreseeable future.',
-        mn5_source: 'Financial Times',
-        mn6_headline: 'Early-stage clinical trial for a new drug shows promising, but inconclusive, results.',
-        mn6_source: 'Pharma Journal',
-        mn7_headline: 'Diplomatic talks between two nations conclude with a statement of mutual cooperation.',
-        mn7_source: 'World News',
-        mn8_headline: 'New report suggests a slight increase in global manufacturing output.',
-        mn8_source: 'Economic Forum',
-        
-        // Company Generated News
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        cntech: '${{companyName}} announces a breakthrough in their flagship software, boosting productivity.',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        cnmining: 'A new, highly efficient extraction method has been patented by ${{companyName}}.',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        cnpharma: '${{companyName}} reports highly successful Phase II trials for their new blockbuster drug.',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        cnmedia: 'Hit show from ${{companyName}} breaks viewership records worldwide.',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        cnfinance: '${{companyName}} algorithm correctly predicts market micro-trend, yielding massive returns.',
-        // FIX: Corrected placeholder syntax for dynamic strings.
-        cnreal_estate: 'Luxury development by ${{companyName}} sells out in record time, setting new price benchmarks.',
+        // Bank Logs
+        monthlyLoanPayment: "Made monthly loan payment of ${amount}.",
+        loanRepaymentDiscount: "Repaid ${amount} of your loan by paying ${paidAmount}. The 2% early payment bonus saved you ${savedAmount}!",
+        loanDeferment: "Deferred this month's loan payment. Penalties have been applied.",
+        loanDefermentPenalty: "Deferred this month's loan payment. A penalty of ${penalty} has been deducted from your cash.",
+
+        // Dynamic News
+        news_earnings_strong: '{assetName} sees strong quarterly earnings report.',
+        news_investigation: '{assetName} faces investigation over market practices.',
+        news_positive_outlook: 'Analysts issue a positive outlook for {assetName}.',
+        news_supply_concerns: 'Supply chain concerns continue to plague {assetName}.',
+        news_buyback: '{assetName} announces a new stock buyback program, signaling confidence.',
+        news_regulatory_scrutiny: 'Regulatory scrutiny intensifies around {assetName} over anti-trust concerns.',
+        news_consumer_confidence: 'A rise in consumer confidence boosts the outlook for {assetName}.',
+        news_new_competition: '{assetName} faces new competition from an innovative startup in its sector.',
+        election_description: '{winnerName} wins the election in {countryName}. Economic policies are expected to shift, causing market uncertainty.',
+        company_news_positive: '{companyName} announces record profits and expansion plans.',
+
+        // Major Events
+        event_tech_summit_title: 'Global Tech Summit Unveils New AI Breakthrough',
+        event_tech_summit_desc: 'A major breakthrough in artificial intelligence has been announced, promising to revolutionize various industries. Tech stocks are expected to react positively.',
+        event_us_fed_hike_title: 'US Federal Reserve Announces Interest Rate Hike',
+        event_us_fed_hike_desc: 'In a move to curb inflation, the US Fed has raised interest rates by 25 basis points. Markets are bracing for a period of tighter credit.',
+        event_china_5_year_plan_title: 'China Announces New Five-Year Economic Plan',
+        event_china_5_year_plan_desc: 'Beijing has unveiled an ambitious new economic plan focusing on technological self-sufficiency and green energy, set to boost related sectors.',
+        event_eu_trade_deal_title: 'EU Finalizes Major New Trade Agreement',
+        event_eu_trade_deal_desc: 'The European Union has signed a landmark trade deal with a key partner, expected to ease supply chain pressures and boost the European economy.',
+        event_opec_cuts_title: 'OPEC+ Announces Surprise Production Cuts',
+        event_opec_cuts_desc: 'OPEC+ nations have agreed to a surprise cut in oil production, sending crude prices soaring amid concerns over global supply.',
+        event_cyber_attack_title: 'Major Cybersecurity Breach Hits Financial Sector',
+        event_cyber_attack_desc: 'A sophisticated cyber attack has targeted major financial institutions, shaking confidence in global security and prompting regulatory review.',
+        event_green_energy_title: 'Breakthrough in Green Energy Storage Announced',
+        event_green_energy_desc: 'Scientists have announced a major breakthrough in battery technology, boosting the outlook for renewable energy and electric vehicles while pressuring the oil market.',
+        event_g7_summit_title: 'G7 Summit Concludes with Pledge for Global Stability',
+        event_g7_summit_desc: 'Leaders of the G7 nations have concluded their summit with a joint pledge to cooperate on economic challenges, easing geopolitical tensions.',
+        event_inflation_surprise_title: 'Unexpectedly High Inflation Report Shakes Markets',
+        event_inflation_surprise_desc: 'The latest inflation report came in much higher than anticipated, stoking fears of aggressive central bank action and a potential recession.',
+
+
+        // New Features
+        companyManagement: 'Company Management',
+        strategicActions: 'Strategic Actions (Requires Level 4+)',
+        marketingCampaign: 'Marketing Campaign',
+        researchAndDevelopment: 'R&D Investment',
+        governmentLobbying: 'Government Lobbying',
+        launch: 'Launch',
+        invest: 'Invest',
+        lobby: 'Lobby',
+        selectAnIndustry: 'Select an industry to support...',
+        save: 'Save',
+        quit: 'Quit to Menu',
+        deleteSave: 'Delete Save',
+        saveConfirmation: 'Game Saved!',
+        quitConfirmation: 'Are you sure you want to quit? Your progress will be saved, but you will return to the main menu.',
+        deleteConfirmation: 'Are you sure you want to permanently delete your save data? This action cannot be undone.',
+
     },
-    // FIX: Corrected all key-value pairs in the 'fa' object to use colons instead of commas, and fixed placeholder syntax.
     fa: {
         // General
         cash: 'وجه نقد',
-        netWorth: 'ارزش خالص دارایی',
+        netWorth: 'ارزش خالص',
         date: 'تاریخ',
-        close: 'بستن',
+        language: 'English',
+        buy: 'خرید',
+        sell: 'فروش',
+        short: 'فروش استقراضی',
         confirm: 'تایید',
-        cancel: 'لغو',
-        error: 'خطا',
-        success: 'موفقیت',
-        notEnoughCash: 'وجه نقد کافی نیست.',
-        positive: 'مثبت',
-        negative: 'منفی',
-        rise: 'افزایش',
-        fall: 'کاهش',
+        trade: 'معامله',
+        quantity: 'تعداد',
+        max: 'حداکثر',
+        leverage: 'اهرم',
+        price: 'قیمت',
+        total: 'مجموع',
+        margin: 'ودیعه',
+        order: 'سفارش',
+        placeOrder: 'ثبت سفارش',
+        cost: 'هزینه',
+        upgrade: 'ارتقا',
+        all: 'همه',
+        assets: 'دارایی‌ها',
+        change24h: 'تغییر ۲۴ ساعته',
+        actions: 'عملیات',
+        marketLocked: 'بازار قفل شده',
+        type: 'نوع',
+        level: 'سطح',
+        monthlyIncome: 'درآمد ماهانه',
+        establish: 'تاسیس',
+        pc: 'سرمایه سیاسی',
+        promote: 'ترویج',
+        disrupt: 'اخلال',
+        close: 'بستن',
+        pnl: 'سود/زیان',
+        acknowledge: 'متوجه شدم',
+        electionResults: 'نتایج انتخابات',
+        manage: 'مدیریت',
 
-        // Header
-        language: 'EN',
+        // Header & Time
+        play: 'پخش',
+        pause: 'توقف',
+        skipDay: 'رد کردن روز',
+
+        // Country Selection
+        selectCountry: 'یک کشور مبدا انتخاب کنید',
+        enterYourName: 'نام خود را وارد کنید',
+        taxRate: 'نرخ مالیات',
+        companyCost: 'هزینه شرکت',
 
         // Tabs
         markets: 'بازارها',
-        portfolio: 'سبد سهام',
-        corporate: 'شرکت‌ها',
+        portfolio: 'سبد دارایی',
+        corporate: 'شرکتی',
         politics: 'سیاست',
         bank: 'بانک',
-        log: 'وقایع',
         news: 'اخبار',
-
-        // Country Selection
-        selectCountry: 'کشور محل اقامت خود را انتخاب کنید',
-        startAs: 'شروع به عنوان',
-        taxRate: 'نرخ مالیات',
-        companyCost: 'هزینه شرکت',
-        localMarkets: 'بازارهای محلی',
-
-        // Markets View
-        all: 'همه',
-        assets: 'دارایی‌ها',
-        price: 'قیمت',
-        change24h: 'تغییر ۲۴ ساعته',
-        actions: 'عملیات',
-        trade: 'معامله',
-        order: 'سفارش',
-        marketLocked: 'بازار قفل شده',
+        log: 'گزارش رویدادها',
 
         // Portfolio View
         spotHoldings: 'دارایی‌های نقدی',
-        quantity: 'تعداد',
-        avgCost: 'قیمت تمام شده',
+        avgCost: 'میانگین هزینه',
         marketValue: 'ارزش بازار',
-        unrealizedPNL: 'سود/زیان محقق نشده',
-        marginPositions: 'پوزیشن‌های اهرمی',
+        unrealizedPNL: 'سود/زیان تحقق نیافته',
+        marginPositions: 'موقعیت‌های مارجین',
         entryPrice: 'قیمت ورود',
-        leverage: 'اهرم',
-        liquidationPrice: 'قیمت لیکویید شدن',
-        pnl: 'سود/زیان',
+        liquidationPrice: 'قیمت تسویه',
         pendingOrders: 'سفارشات در انتظار',
 
         // Corporate View
         corporateHoldings: 'دارایی‌های شرکتی',
-        establishCompany: 'تاسیس شرکت جدید',
         companyName: 'نام شرکت',
-        type: 'نوع',
-        level: 'سطح',
-        monthlyIncome: 'درآمد ماهانه',
-        upgrade: 'ارتقا',
-        establish: 'تاسیس',
+        establishCompany: 'تاسیس شرکت',
 
         // Politics View
         nationalPolitics: 'سیاست ملی',
@@ -307,152 +309,155 @@ const translations = {
         politicalActions: 'اقدامات سیاسی',
         donateToParty: 'کمک مالی به حزب',
         localLobbying: 'لابی‌گری محلی',
-        globalOperations: 'عملیات نفوذ جهانی',
+        globalOperations: 'عملیات جهانی',
         changeResidency: 'تغییر اقامت',
+        globalInfluence: 'نفوذ جهانی',
 
         // Bank View
         bankingServices: 'خدمات بانکی',
         currentLoan: 'وام فعلی',
-        interestRate: 'نرخ بهره (سالانه)',
+        interestRate: 'نرخ بهره',
         loanLimit: 'سقف وام',
-        takeLoan: 'دریافت وام',
-        repayLoan: 'بازپرداخت وام',
-        amount: 'مبلغ',
         analyst: 'تحلیلگر',
         marketPrediction: 'پیش‌بینی بازار',
         trendAnalysis: 'تحلیل روند',
-        hireAnalyst: 'استخدام تحلیلگر',
+        takeLoan: 'دریافت وام',
+        repayLoan: 'بازپرداخت وام',
+        deferPayment: 'تعویق پرداخت این ماه',
+        defermentsRemaining: '{count} تعویق باقی مانده است',
+        noDeferments: 'تعویقی باقی نمانده است',
+        monthlyPayment: 'پرداخت ماهانه تخمینی',
 
-        // Log View
+        // Log & News
         eventLog: 'گزارش رویدادها',
-        
-        // News View
         newsArchive: 'آرشیو اخبار',
         noNews: 'خبری برای نمایش وجود ندارد.',
+        breakingNews: 'خبر فوری',
 
         // Modals
-        tradeAsset: 'معامله دارایی',
-        buy: 'خرید',
-        sell: 'فروش',
-        short: 'فروش استقراضی',
-        total: 'مجموع',
-        max: 'حداکثر',
-        margin: 'مارجین',
-        placeOrder: 'ثبت سفارش',
-
         establishNewCompany: 'تاسیس شرکت جدید',
         companyType: 'نوع شرکت',
-        tech: 'استارتاپ تکنولوژی',
-        mining: 'عملیات استخراج معدن',
-        pharma: 'آزمایشگاه داروسازی',
-        media: 'گروه رسانه‌ای',
-        finance: 'گروه مالی',
-        real_estate: 'توسعه املاک و مستغلات',
-        cost: 'هزینه',
-        
-        upgradeCompany: 'ارتقای شرکت',
+        upgradeCost: 'هزینه ارتقا',
         currentLevel: 'سطح فعلی',
         nextLevel: 'سطح بعدی',
-        upgradeCost: 'هزینه ارتقا',
-        newIncome: 'درآمد ماهانه جدید',
-
+        newIncome: 'درآمد جدید',
         immigration: 'مهاجرت',
-        applyForResidency: 'درخواست اقامت در کشور دیگر',
+        applyForResidency: 'درخواست اقامت',
         residencyCost: 'هزینه اقامت',
-        minNetWorth: 'حداقل ارزش خالص دارایی',
+        minNetWorth: 'حداقل ارزش خالص',
         apply: 'درخواست',
-
         donate: 'کمک مالی',
-        party: 'حزب',
 
-        breakingNews: 'خبر فوری',
-        acknowledge: 'متوجه شدم',
-        
-        analystReport: 'گزارش تحلیلگر',
-        selectAsset: 'یک دارایی برای تحلیل انتخاب کنید',
-        getAnalysis: 'دریافت تحلیل',
-        getPrediction: 'دریافت پیش‌بینی',
-        analyst_prediction_log: 'پیش‌بینی تحلیلگر: مدل‌های ما نشان می‌دهد که ${{assetName}} در کوتاه‌مدت احتمالاً ${{prediction}} خواهد داشت.',
-        analyst_analysis_log: 'تحلیل برای ${{assetName}}: عامل اصلی برای این دارایی، همبستگی ${{impact}} آن با ${{driver}} است.',
-        
-        // Global Factors (user-friendly names)
+        // Asset Categories
+        tech: 'فناوری',
+        commodity: 'کالا',
+        crypto: 'ارز دیجیتال',
+        pharma: 'داروسازی',
+        real_estate: 'املاک و مستغلات',
+        global: 'جهانی',
+        industrial: 'صنعتی',
+        consumer: 'مصرفی',
+
+        // Company Types
+        mining: 'معدن',
+        media: 'رسانه',
+        finance: 'مالی',
+
+        // Global Factors
         globalstability: 'ثبات جهانی',
         useconomy: 'اقتصاد آمریکا',
         chinaeconomy: 'اقتصاد چین',
-        eueconomy: 'اقتصاد اروپا',
+        eueconomy: 'اقتصاد اتحادیه اروپا',
         japaneconomy: 'اقتصاد ژاپن',
         indiaeconomy: 'اقتصاد هند',
         russiaeconomy: 'اقتصاد روسیه',
-        middleeasttension: 'تنش در خاورمیانه',
-        asiatensions: 'تنش در آسیا',
-        techinnovation: 'نوآوری در فناوری',
+        middleeasttension: 'تنش خاورمیانه',
+        asiatensions: 'تنش‌های آسیا',
+        techinnovation: 'نوآوری فناوری',
         globalsupplychain: 'زنجیره تامین جهانی',
         oilsupply: 'عرضه نفت',
         usfedpolicy: 'سیاست فدرال رزرو آمریکا',
         secregulation: 'مقررات SEC',
-        usjobgrowth: 'رشد شغلی در آمریکا',
+        usjobgrowth: 'رشد مشاغل آمریکا',
         publicsentiment: 'احساسات عمومی',
-        climatechangeimpact: 'تأثیر تغییرات اقلیمی',
-        pharmademand: 'تقاضا برای دارو',
+        climatechangeimpact: 'تاثیر تغییرات اقلیمی',
+        pharmademand: 'تقاضای دارو',
         inflation: 'تورم',
 
-        // Global Influence Modal
-        globalInfluence: 'عملیات نفوذ جهانی',
-        promote: 'ترویج',
-        disrupt: 'اخلال',
-        pc: 'سرمایه سیاسی',
-        influence_success: 'موفقیت: عملیات ما برای ${{direction}} در ${{factor}} به نتایج مطلوب دست یافت.',
-        influence_fail: 'شکست: عملیات ما برای ${{direction}} در ${{factor}} نتوانست تأثیر قابل توجهی داشته باشد.',
-        influence_backfire: 'فاجعه: عملیات ما برای ${{direction}} در ${{factor}} نتیجه معکوس داد و باعث اثر متضاد شد!',
+        // Influence Actions
+        influence_success: 'عملیات موفقیت‌آمیز بود: شما با موفقیت بر {factor} به سمت {direction} تأثیر گذاشتید.',
+        influence_fail: 'عملیات شکست خورد: تلاش شما برای تأثیرگذاری بر {factor} بی‌نتیجه بود.',
+        influence_backfire: 'عملیات نتیجه معکوس داد! تلاش شما برای تأثیرگذاری بر {factor} نتیجه عکس داشت.',
+
+        // Analyst Reports
+        analystPredictionReport: 'تحلیل ما نشان دهنده یک روند {trend} برای {assetName} است. قدرت و مدت زمان این روند در حال حاضر نامشخص است.',
+        analystTrendReport: '{assetName} عمدتاً تحت تأثیر {driver1_direction} از {driver1} و تأثیر {driver2_direction} از {driver2} قرار دارد.',
+        positive: 'مثبت',
+        negative: 'منفی',
         
-        // Time Controls
-        skipDay: 'پرش به روز بعد',
-        play: 'اجرا',
-        pause: 'توقف',
+        // Bank Logs
+        monthlyLoanPayment: "پرداخت ماهانه وام به مبلغ ${amount} انجام شد.",
+        loanRepaymentDiscount: "شما با پرداخت {paidAmount}$، مبلغ {amount}$ از وام خود را تسویه کردید. پاداش ۲٪ پرداخت زودهنگام، {savedAmount}$ برای شما ذخیره کرد!",
+        loanDeferment: "پرداخت وام این ماه به تعویق افتاد. جریمه‌ها اعمال شده است.",
+        loanDefermentPenalty: "پرداخت وام این ماه به تعویق افتاد. جریمه‌ای به مبلغ ${penalty} از حساب شما کسر شد.",
 
-        // Events
-        election_title: 'نتایج انتخابات ریاست جمهوری ${{year}} ${{country}}',
-        election_desc: 'پس از یک فصل انتخاباتی داغ، ${{winner}} به عنوان برنده اعلام شد. انتظار می‌رود بازارها به سیاست‌های پیش‌بینی شده دولت جدید واکنش نشان دهند.',
-        event_ai_breakthrough_title: "اجلاس جهانی فناوری از پیشرفت بزرگ در هوش مصنوعی خبر داد",
-        event_ai_breakthrough_desc: "یک پیشرفت بزرگ در هوش مصنوعی اعلام شده است که قول می‌دهد صنایع مختلف را متحول کند. انتظار می‌رود سهام شرکت‌های فناوری به شدت واکنش نشان دهند.",
-        event_scam_title: "ادعای کلاهبرداری در مورد ${{assetName}} مطرح شد",
-        event_scam_desc: "نهادهای نظارتی معاملات ${{assetName}} را در بحبوحه ادعاهای گسترده کلاهبرداری متوقف کرده‌اند. ارزش شرکت با خروج سرمایه‌گذاران به شدت سقوط کرده است.",
+        // Dynamic News
+        news_earnings_strong: '{assetName} گزارش درآمد فصلی قوی را منتشر کرد.',
+        news_investigation: '{assetName} به دلیل شیوه‌های بازار تحت تحقیق قرار گرفت.',
+        news_positive_outlook: 'تحلیلگران چشم‌انداز مثبتی برای {assetName} صادر کردند.',
+        news_supply_concerns: 'نگرانی‌های زنجیره تامین همچنان {assetName} را تحت تاثیر قرار می‌دهد.',
+        news_buyback: '{assetName} برنامه جدید خرید سهام خود را اعلام کرد که نشان از اعتماد دارد.',
+        news_regulatory_scrutiny: 'نظارت‌های قانونی بر {assetName} به دلیل نگرانی‌های ضدانحصار تشدید شده است.',
+        news_consumer_confidence: 'افزایش اعتماد مصرف‌کننده، چشم‌انداز {assetName} را بهبود می‌بخشد.',
+        news_new_competition: '{assetName} با رقابت جدیدی از سوی یک استارتاپ نوآور در بخش خود مواجه است.',
+        election_description: '{winnerName} در انتخابات {countryName} پیروز شد. انتظار می‌رود سیاست‌های اقتصادی تغییر کند و باعث عدم اطمینان در بازار شود.',
+        company_news_positive: '{companyName} از سود بی‌سابقه و برنامه‌های توسعه خود خبر داد.',
 
-        // News Ticker
-        mn1_headline: 'تحلیلگران در مورد تأثیر داده‌های اخیر تورم بر هزینه‌های مصرف‌کننده بحث می‌کنند.',
-        mn1_source: 'دیده‌بان بازار',
-        mn2_headline: 'اختلالات جزئی در مسیرهای اصلی کشتیرانی گزارش شده، اما زنجیره‌های تأمین پایدار باقی مانده‌اند.',
-        mn2_source: 'سازمان تجارت جهانی',
-        mn3_headline: 'گمانه‌زنی‌ها در مورد نسل بعدی لوازم الکترونیکی مصرفی در حال افزایش است.',
-        mn3_source: 'وقایع‌نامه فناوری',
-        mn4_headline: 'نشست اوپک پلاس بدون تغییر در سهمیه‌های تولید به پایان رسید.',
-        mn4_source: 'تریبون انرژی',
-        mn5_headline: 'بانک مرکزی به حفظ نرخ‌های بهره فعلی در آینده قابل پیش‌بینی اشاره کرد.',
-        mn5_source: 'فایننشال تایمز',
-        mn6_headline: 'آزمایش بالینی مرحله اولیه برای یک داروی جدید نتایج امیدوارکننده اما غیرقطعی نشان می‌دهد.',
-        mn6_source: 'مجله داروسازی',
-        mn7_headline: 'مذاکرات دیپلماتیک بین دو کشور با بیانیه‌ای مبنی بر همکاری متقابل به پایان رسید.',
-        mn7_source: 'اخبار جهان',
-        mn8_headline: 'گزارش جدید حاکی از افزایش جزئی در تولیدات صنعتی جهانی است.',
-        mn8_source: 'مجمع اقتصادی',
+        // Major Events
+        event_tech_summit_title: 'اجلاس جهانی فناوری از پیشرفت جدید هوش مصنوعی رونمایی کرد',
+        event_tech_summit_desc: 'یک پیشرفت بزرگ در هوش مصنوعی اعلام شده است که قول می‌دهد صنایع مختلف را متحول کند. انتظار می‌رود سهام فناوری واکنش مثبتی نشان دهد.',
+        event_us_fed_hike_title: 'فدرال رزرو آمریکا افزایش نرخ بهره را اعلام کرد',
+        event_us_fed_hike_desc: 'در اقدامی برای مهار تورم، فدرال رزرو آمریکا نرخ بهره را ۲۵ صدم درصد افزایش داد. بازارها برای دوره اعتبار سخت‌تر آماده می‌شوند.',
+        event_china_5_year_plan_title: 'چین برنامه اقتصادی پنج ساله جدید خود را اعلام کرد',
+        event_china_5_year_plan_desc: 'پکن از یک برنامه اقتصادی جدید و جاه‌طلبانه با تمرکز بر خودکفایی فناوری و انرژی سبز رونمایی کرده است که قرار است بخش‌های مرتبط را تقویت کند.',
+        event_eu_trade_deal_title: 'اتحادیه اروپا توافقنامه تجاری بزرگ جدیدی را نهایی کرد',
+        event_eu_trade_deal_desc: 'اتحادیه اروپا یک توافقنامه تجاری تاریخی با یک شریک کلیدی امضا کرده است که انتظار می‌رود فشارهای زنجیره تامین را کاهش داده و اقتصاد اروپا را تقویت کند.',
+        event_opec_cuts_title: 'اوپک پلاس کاهش غافلگیرکننده تولید را اعلام کرد',
+        event_opec_cuts_desc: 'کشورهای عضو اوپک پلاس با کاهش غافلگیرکننده تولید نفت موافقت کرده‌اند که باعث افزایش شدید قیمت نفت خام در میان نگرانی‌ها در مورد عرضه جهانی شده است.',
+        event_cyber_attack_title: 'حمله سایبری بزرگ به بخش مالی',
+        event_cyber_attack_desc: 'یک حمله سایبری پیچیده، نهادهای مالی بزرگ را هدف قرار داده و اعتماد به امنیت جهانی را متزلزل کرده و منجر به بازنگری نظارتی شده است.',
+        event_green_energy_title: 'پیشرفت بزرگ در ذخیره‌سازی انرژی سبز اعلام شد',
+        event_green_energy_desc: 'دانشمندان از یک پیشرفت بزرگ در فناوری باتری خبر داده‌اند که چشم‌انداز انرژی‌های تجدیدپذیر و وسایل نقلیه الکتریکی را بهبود بخشیده و بازار نفت را تحت فشار قرار می‌دهد.',
+        event_g7_summit_title: 'نشست گروه G7 با تعهد به ثبات جهانی به پایان رسید',
+        event_g7_summit_desc: 'رهبران کشورهای گروه G7 نشست خود را با تعهد مشترک برای همکاری در چالش‌های اقتصادی به پایان رساندند که باعث کاهش تنش‌های ژئوپلیتیکی شده است.',
+        event_inflation_surprise_title: 'گزارش تورم بالا و غیرمنتظره بازارها را به لرزه درآورد',
+        event_inflation_surprise_desc: 'آخرین گزارش تورم بسیار بالاتر از حد انتظار بود و ترس از اقدامات تهاجمی بانک مرکزی و رکود احتمالی را برانگیخت.',
 
-        // Company Generated News
-        cntech: '${{companyName}} از یک پیشرفت در نرم‌افزار پرچمدار خود خبر داد که بهره‌وری را افزایش می‌دهد.',
-        cnmining: 'یک روش استخراج جدید و بسیار کارآمد توسط ${{companyName}} به ثبت رسید.',
-        cnpharma: '${{companyName}} از آزمایش‌های فاز دوم بسیار موفق برای داروی پرفروش جدید خود خبر داد.',
-        cnmedia: 'سریال موفق ${{companyName}} رکوردهای تماشا را در سراسر جهان شکست.',
-        cnfinance: 'الگوریتم ${{companyName}} یک روند کوچک در بازار را به درستی پیش‌بینی کرد و بازدهی عظیمی به همراه داشت.',
-        cnreal_estate: 'پروژه لوکس ${{companyName}} در زمان رکورد به فروش رفت و معیارهای جدیدی برای قیمت تعیین کرد.',
+        // New Features
+        companyManagement: 'مدیریت شرکت',
+        strategicActions: 'اقدامات استراتژیک (نیازمند سطح +۴)',
+        marketingCampaign: 'کمپین بازاریابی',
+        researchAndDevelopment: 'سرمایه‌گذاری تحقیق و توسعه',
+        governmentLobbying: 'لابی‌گری دولتی',
+        launch: 'راه‌اندازی',
+        invest: 'سرمایه‌گذاری',
+        lobby: 'لابی',
+        selectAnIndustry: 'یک صنعت برای حمایت انتخاب کنید...',
+        save: 'ذخیره',
+        quit: 'خروج به منو',
+        deleteSave: 'حذف ذخیره',
+        saveConfirmation: 'بازی ذخیره شد!',
+        quitConfirmation: 'آیا مطمئن هستید که می‌خواهید خارج شوید؟ پیشرفت شما ذخیره می‌شود، اما به منوی اصلی باز خواهید گشت.',
+        deleteConfirmation: 'آیا مطمئن هستید که می‌خواهید داده‌های ذخیره شده خود را برای همیشه حذف کنید؟ این عمل قابل بازگشت نیست.',
     },
 };
 
-export const t = (key: keyof typeof translations.en, lang: Language, options?: Record<string, string | number>) => {
-    let translation = translations[lang][key] || key;
-    if (options && typeof translation === 'string') {
+export const t = (key: string, lang: Language, options?: Record<string, string>): string => {
+    let translation = translations[lang][key] || translations['en'][key] || key;
+    if (options) {
         Object.keys(options).forEach(optionKey => {
-            const regex = new RegExp(`\\$\\{\\{${optionKey}\\}\\}`, 'g');
-            translation = translation.replace(regex, String(options[optionKey]));
+            translation = translation.replace(`{${optionKey}}`, options[optionKey]);
         });
     }
     return translation;
-}
+};

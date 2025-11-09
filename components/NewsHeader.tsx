@@ -16,7 +16,7 @@ const NewsHeader: React.FC<NewsHeaderProps> = ({ majorEvent, tickerNews, languag
             <div className="p-4 px-6 border-b border-stone-800">
                 <h2 className="text-lg font-bold text-rose-500">{t('breakingNews', language)}</h2>
                 <p className="text-stone-300">
-                    {majorEvent ? majorEvent.title : 'Market activity is stable. Analysts watch for key economic indicators.'}
+                    {majorEvent ? t(majorEvent.titleKey, language) : 'Market activity is stable. Analysts watch for key economic indicators.'}
                 </p>
             </div>
             <div className="bg-stone-800/50 p-2 text-stone-300 text-sm">

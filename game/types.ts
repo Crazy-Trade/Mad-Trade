@@ -47,8 +47,9 @@ export interface MarginPosition {
     margin: number;
 }
 
+export type CompanyEffectType = 'income_halt' | 'tax_break';
 export interface CompanyEffect {
-    type: 'income_halt';
+    type: CompanyEffectType;
     durationMonths: number;
 }
 
@@ -79,6 +80,7 @@ export interface PendingOrder {
 }
 
 export interface Player {
+    name: string;
     cash: number;
     portfolio: Record<string, PortfolioItem>;
     marginPositions: Record<string, MarginPosition>;
@@ -86,6 +88,8 @@ export interface Player {
     loan: {
         amount: number;
         interestRate: number;
+        defermentsUsed: number;
+        isDeferredThisMonth: boolean;
     };
     politicalCapital: Record<string, number>;
     currentResidency: string; // Country ID
@@ -101,8 +105,8 @@ export interface NewsItem {
 }
 
 export interface MajorEvent {
-    title: string;
-    description: string;
+    titleKey: string;
+    descriptionKey: string;
     effects: Partial<Record<GlobalFactor, number>>;
 }
 
@@ -134,12 +138,21 @@ export type ModalType =
     | { type: 'trade'; assetId: string }
     | { type: 'order'; assetId: string }
     | { type: 'company'; companyType: CompanyType }
-    | { type: 'upgrade-company'; company: Company }
+    | { type: 'upgrade-company'; company: Company } // Kept for simplicity, though management modal is primary
+    | { type: 'company-management'; company: Company }
     | { type: 'politics' }
+    | { type: 'lobbying' }
     | { type: 'immigration' }
     | { type: 'global-influence' }
     | { type: 'event-popup'; event: MajorEvent }
     | { type: 'analyst'; analysisType: 'prediction' | 'analysis' };
+
+export type CorporateActionType = 'marketing' | 'research' | 'lobbying';
+export interface CorporateAction {
+    companyId: string;
+    type: CorporateActionType;
+    cost: number;
+}
 
 export type GameAction =
     | { type: 'LOAD_STATE'; payload: GameState }
@@ -148,16 +161,19 @@ export type GameAction =
     | { type: 'TICK'; payload: { deltaTime: number } }
     | { type: 'ADVANCE_DAY' }
     | { type: 'SKIP_TO_NEXT_DAY' }
-    | { type: 'SET_INITIAL_STATE'; payload: { countryId: string } }
+    | { type: 'SET_INITIAL_STATE'; payload: { countryId: string, playerName: string } }
     | { type: 'SPOT_TRADE'; payload: { assetId: string; quantity: number; price: number; type: 'buy' | 'sell' } }
     | { type: 'OPEN_MARGIN_POSITION'; payload: { assetId: string; quantity: number; price: number; leverage: number; type: 'long' | 'short' } }
     | { type: 'CLOSE_MARGIN_POSITION'; payload: { positionId: string } }
     | { type: 'ESTABLISH_COMPANY'; payload: Company }
     | { type: 'UPGRADE_COMPANY'; payload: { companyId: string, cost: number, outcome: UpgradeOutcome } }
+    | { type: 'EXECUTE_CORPORATE_ACTION'; payload: CorporateAction }
     | { type: 'TAKE_LOAN'; payload: number }
     | { type: 'REPAY_LOAN'; payload: number }
+    | { type: 'DEFER_LOAN_PAYMENT' }
     | { type: 'CHANGE_RESIDENCY'; payload: { countryId: string, cost: number } }
     | { type: 'EXECUTE_POLITICAL_ACTION'; payload: PoliticalAction }
+    | { type: 'EXECUTE_LOCAL_LOBBY'; payload: { category: AssetCategory, costPC: number } }
     | { type: 'EXECUTE_GLOBAL_INFLUENCE'; payload: { factor: GlobalFactor, direction: 'promote' | 'disrupt', costPC: number, costCash: number } }
     | { type: 'ANALYST_REPORT_PURCHASED', payload: { cost: number, message: string } }
     | { type: 'DISMISS_MAJOR_EVENT' }
@@ -203,6 +219,9 @@ export interface ModalProps {
 export interface HeaderProps {
     gameState: GameState;
     dispatch: React.Dispatch<GameAction>;
+    onSave: () => void;
+    onQuit: () => void;
+    onDelete: () => void;
 }
 
 export interface TimeControlsProps {
@@ -225,12 +244,11 @@ export interface MainContentProps {
 }
 
 export interface CountrySelectionModalProps {
-    onSelect: (countryId: string) => void;
+    onSelect: (countryId: string, playerName: string) => void;
     countries: Country[];
     language: Language;
 }
 
-// Fix: Removed 'extends ModalProps' and added 'onClose' directly.
 export interface TradeModalProps {
     onClose: () => void;
     asset: Asset;
@@ -240,7 +258,6 @@ export interface TradeModalProps {
     language: Language;
 }
 
-// Fix: Removed 'extends ModalProps' and added 'onClose' directly.
 export interface OrderModalProps {
     onClose: () => void;
     asset: Asset;
@@ -251,7 +268,6 @@ export interface OrderModalProps {
 }
 
 
-// Fix: Removed 'extends ModalProps' and added 'onClose' directly.
 export interface CompanyModalProps {
     onClose: () => void;
     companyType: CompanyType;
@@ -261,7 +277,14 @@ export interface CompanyModalProps {
     language: Language;
 }
 
-// Fix: Removed 'extends ModalProps' and added 'onClose' directly.
+export interface CompanyManagementModalProps {
+     onClose: () => void;
+    company: Company;
+    dispatch: React.Dispatch<GameAction>;
+    playerCash: number;
+    language: Language;
+}
+
 export interface UpgradeCompanyModalProps {
     onClose: () => void;
     company: Company;
@@ -270,13 +293,19 @@ export interface UpgradeCompanyModalProps {
     language: Language;
 }
 
-// Fix: Removed 'extends ModalProps' and added 'onClose' directly.
 export interface PoliticsModalProps {
     onClose: () => void;
     dispatch: React.Dispatch<GameAction>;
-    residency: string;
-    politicalCapital: number;
+    residencyHistory: string[];
+    politicalCapital: Record<string, number>;
     playerCash: number;
+    language: Language;
+}
+
+export interface LobbyingModalProps {
+    onClose: () => void;
+    dispatch: React.Dispatch<GameAction>;
+    politicalCapital: number;
     language: Language;
 }
 
@@ -298,7 +327,6 @@ export interface GlobalInfluenceModalProps {
     language: Language;
 }
 
-// Fix: Removed 'extends ModalProps' and added 'onClose' directly.
 export interface EventModalProps {
     onClose: () => void;
     event: MajorEvent;
@@ -341,7 +369,7 @@ export interface PoliticsViewProps {
 }
 
 export interface BankViewProps {
-    loan: { amount: number, interestRate: number };
+    loan: Player['loan'];
     netWorth: number;
     playerCash: number;
     dispatch: React.Dispatch<GameAction>;

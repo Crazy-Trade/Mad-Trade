@@ -12,7 +12,9 @@ import TradeModal from './TradeModal';
 import OrderModal from './OrderModal';
 import CompanyModal from './CompanyModal';
 import UpgradeCompanyModal from './UpgradeCompanyModal';
+import CompanyManagementModal from './CompanyManagementModal';
 import PoliticsModal from './PoliticsModal';
+import LobbyingModal from './LobbyingModal';
 import ImmigrationModal from './ImmigrationModal';
 import GlobalInfluenceModal from './GlobalInfluenceModal';
 import EventModal from './EventModal';
@@ -134,13 +136,30 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
                     language={language}
                 />
             )}
+             {activeModal?.type === 'company-management' && (
+                <CompanyManagementModal
+                    onClose={() => setActiveModal(null)}
+                    company={activeModal.company}
+                    dispatch={dispatch}
+                    playerCash={player.cash}
+                    language={language}
+                />
+            )}
             {activeModal?.type === 'politics' && (
                 <PoliticsModal
                     onClose={() => setActiveModal(null)}
                     dispatch={dispatch}
-                    residency={player.currentResidency}
-                    politicalCapital={player.politicalCapital[player.currentResidency] || 0}
+                    residencyHistory={player.residencyHistory}
+                    politicalCapital={player.politicalCapital}
                     playerCash={player.cash}
+                    language={language}
+                />
+            )}
+            {activeModal?.type === 'lobbying' && (
+                <LobbyingModal
+                    onClose={() => setActiveModal(null)}
+                    dispatch={dispatch}
+                    politicalCapital={player.politicalCapital[player.currentResidency] || 0}
                     language={language}
                 />
             )}

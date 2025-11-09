@@ -51,7 +51,13 @@ const PoliticsView: React.FC<PoliticsViewProps> = ({ gameState, setActiveModal, 
                         onClick={() => setActiveModal({ type: 'politics' })}
                         className="w-full bg-sky-500 text-white font-bold py-2 px-4 rounded-md hover:bg-sky-600 transition-colors"
                      >
-                         {t('donateToParty', language)} / {t('localLobbying', language)}
+                         {t('donateToParty', language)}
+                    </button>
+                    <button
+                        onClick={() => setActiveModal({ type: 'lobbying' })}
+                        className="w-full bg-sky-500 text-white font-bold py-2 px-4 rounded-md hover:bg-sky-600 transition-colors"
+                     >
+                         {t('localLobbying', language)}
                     </button>
                     <button
                         onClick={() => setActiveModal({ type: 'global-influence' })}

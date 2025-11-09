@@ -1,157 +1,134 @@
 // game/engine.ts
-import { GameState, Asset, MajorEvent, NewsItem, GlobalFactors, Country, Company } from "./types";
+import { GameState, Asset, NewsItem, DailyNewsScheduleItem, MajorEvent, GlobalFactors, Country, Company, Language } from './types';
+import { ASSETS, COUNTRIES } from './database';
 import { t } from './translations';
 
-export const DAY_DURATION_MS = 180000; // 3 minutes at 1x speed
-export const PRICE_UPDATE_INTERVAL_MS = 15000; // 15 seconds
+export const DAY_DURATION_MS = 180000; // 3 minutes per day
+export const PRICE_UPDATE_INTERVAL_MS = 15000; // Update prices every 15 seconds
 
-const BASE_TREND_FACTOR = 0.0005;
-const INTERDAY_RANDOM_FACTOR = 0.005;
-
-/**
- * Applies a small, random fluctuation to asset prices for intraday movement.
- */
-export function applyIntradayNoise(assets: Record<string, Asset>): Record<string, Asset> {
+export const applyIntradayNoise = (assets: Record<string, Asset>): Record<string, Asset> => {
     const newAssets = { ...assets };
     for (const assetId in newAssets) {
-        const asset = newAssets[assetId];
-        const noise = (Math.random() - 0.5) * 2; // -1 to 1
-        const changePercent = noise * asset.volatility * 0.05;
-        asset.price *= (1 + changePercent);
-
-        if(asset.price < 0.000001) asset.price = 0;
-    }
-    return newAssets;
-}
-
-/**
- * Calculates the major overnight price change for all assets based on global factors and asset DNA.
- */
-export function updateAllPrices(state: GameState): Record<string, Asset> {
-    const newAssets = { ...state.assets };
-    const factorChanges: Record<string, number> = {};
-
-    for (const factor in state.globalFactors) {
-        factorChanges[factor] = (Math.random() - 0.5) * 0.1;
-    }
-
-    for (const assetId in newAssets) {
-        const asset = newAssets[assetId];
-        let dnaBasedChange = 0;
-
-        for (const factor in asset.dna) {
-            const sensitivity = asset.dna[factor as keyof typeof asset.dna]!;
-            const change = factorChanges[factor] || 0;
-            dnaBasedChange += sensitivity * change;
-        }
-
-        const randomShock = (Math.random() - 0.5) * INTERDAY_RANDOM_FACTOR;
-        const trend = asset.trend * BASE_TREND_FACTOR;
-
-        const totalChangePercent = (dnaBasedChange / 20) + randomShock + trend;
-        
-        asset.basePrice *= (1 + totalChangePercent);
-        asset.price = asset.basePrice;
-        if(asset.price < 0.000001) {
-            asset.price = 0;
-            asset.basePrice = 0;
-        }
+        const asset = { ...newAssets[assetId] };
+        const noise = (Math.random() - 0.5) * asset.volatility * 0.1;
+        asset.price *= (1 + noise);
         newAssets[assetId] = asset;
     }
     return newAssets;
-}
-
-export const generateElectionEvent = (country: Country, year: number, language: 'en' | 'fa'): MajorEvent => {
-    const isDemocratWinner = Math.random() > 0.5;
-    const winner = isDemocratWinner ? country.politicalParties[0].name : country.politicalParties[1].name;
-    
-    return {
-        title: t('election_title', language, { country: country.name, year }),
-        // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
-        description: t('election_desc' as any, language, { winner }),
-        effects: isDemocratWinner 
-            ? { secRegulation: 0.1, pharmaDemand: 0.05, climateChangeImpact: -0.05, usEconomy: 0.02 } 
-            : { secRegulation: -0.1, oilSupply: 0.05, usEconomy: -0.02, globalStability: -0.05 },
-    };
 };
 
-/**
- * Generates major and minor events for the day.
- */
-export function processEvents(state: GameState): Partial<GameState> {
-    const newState: Partial<GameState> = {};
-    let newGlobalFactors = { ...state.globalFactors };
+export const updateAllPrices = (state: GameState): Record<string, Asset> => {
+    const newAssets = { ...state.assets };
+    for (const assetId in newAssets) {
+        const asset = { ...newAssets[assetId] };
+        let priceChange = asset.trend;
+        
+        for (const factor in asset.dna) {
+            const factorInfluence = asset.dna[factor as keyof typeof asset.dna]!;
+            const factorValue = state.globalFactors[factor as keyof GlobalFactors];
+            priceChange += (factorValue - 0.5) * factorInfluence * 0.001;
+        }
+
+        const randomFactor = (Math.random() - 0.5) * asset.volatility;
+        priceChange += randomFactor * 0.1;
+        
+        asset.price *= (1 + priceChange);
+        asset.price = Math.max(0.00000001, asset.price);
+        asset.basePrice = asset.price; // Update base price for next day's 24h change calc
+        newAssets[assetId] = asset;
+    }
+    return newAssets;
+};
+
+export const processEvents = (state: GameState): { majorEventQueue: MajorEvent[], globalFactors: GlobalFactors } => {
+    const majorEventQueue = [...state.majorEventQueue];
+    const globalFactors = { ...state.globalFactors };
+    const eventPool: MajorEvent[] = [
+        { titleKey: 'event_tech_summit_title', descriptionKey: 'event_tech_summit_desc', effects: { techInnovation: 0.2, publicSentiment: 0.1 } },
+        { titleKey: 'event_us_fed_hike_title', descriptionKey: 'event_us_fed_hike_desc', effects: { usFedPolicy: -0.3, usEconomy: -0.1, globalStability: -0.1 } },
+        { titleKey: 'event_china_5_year_plan_title', descriptionKey: 'event_china_5_year_plan_desc', effects: { chinaEconomy: 0.2, techInnovation: 0.1 } },
+        { titleKey: 'event_eu_trade_deal_title', descriptionKey: 'event_eu_trade_deal_desc', effects: { euEconomy: 0.15, globalSupplyChain: 0.1 } },
+        { titleKey: 'event_opec_cuts_title', descriptionKey: 'event_opec_cuts_desc', effects: { oilSupply: -0.4, middleEastTension: 0.1 } },
+        { titleKey: 'event_cyber_attack_title', descriptionKey: 'event_cyber_attack_desc', effects: { globalStability: -0.2, secRegulation: 0.1, techInnovation: -0.05 } },
+        { titleKey: 'event_green_energy_title', descriptionKey: 'event_green_energy_desc', effects: { techInnovation: 0.15, oilSupply: 0.1, climateChangeImpact: 0.1 } },
+        { titleKey: 'event_g7_summit_title', descriptionKey: 'event_g7_summit_desc', effects: { globalStability: 0.15, asiaTensions: -0.1, middleEastTension: -0.1 } },
+        { titleKey: 'event_inflation_surprise_title', descriptionKey: 'event_inflation_surprise_desc', effects: { inflation: 0.2, usFedPolicy: -0.2, publicSentiment: -0.1 } },
+    ];
+
+    if (Math.random() < 0.35) { // 35% chance of a major event per day
+        const event = eventPool[Math.floor(Math.random() * eventPool.length)];
+        majorEventQueue.push(event);
+    }
     
-    if (Math.random() < 0.01) {
-        const majorEvent: MajorEvent = {
-            // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
-            title: t('event_ai_breakthrough_title' as any, state.language),
-            // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
-            description: t('event_ai_breakthrough_desc' as any, state.language),
-            effects: { techInnovation: 0.15, publicSentiment: 0.1 }
-        };
-        newState.majorEventQueue = [...state.majorEventQueue, majorEvent];
-        for(const effect in majorEvent.effects) {
-            const factor = effect as keyof typeof newGlobalFactors;
-            newGlobalFactors[factor] = Math.max(0, Math.min(1, newGlobalFactors[factor] + majorEvent.effects[factor]!));
+    // Apply effects from current event if any
+    const currentEvent = state.majorEvent;
+    if (currentEvent) {
+        for (const factor in currentEvent.effects) {
+            const key = factor as keyof GlobalFactors;
+            globalFactors[key] = Math.max(0, Math.min(1, (globalFactors[key] || 0.5) + currentEvent.effects[key]!));
         }
     }
-
-    // Scam check
-    const scamAsset = Object.values(state.assets).find(a => a.isScam);
-    if (scamAsset && scamAsset.price > 0.01 && Math.random() < 0.005) { // ~0.5% chance per day
-        const scamEvent: MajorEvent = {
-            // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
-            title: t('event_scam_title' as any, state.language, { assetName: scamAsset.name }),
-            // FIX: Cast string literal to `any` to satisfy the type of `key` for the `t` function.
-            description: t('event_scam_desc' as any, state.language, { assetName: scamAsset.name }),
-            effects: { publicSentiment: -0.2, secRegulation: 0.1, russiaEconomy: -0.1 }
-        };
-        newState.majorEventQueue = [...state.majorEventQueue, scamEvent];
-        const newAssets = { ...state.assets };
-        newAssets[scamAsset.id].price = 0.0001;
-        newAssets[scamAsset.id].basePrice = 0.0001;
-        newAssets[scamAsset.id].trend = -1; // Ensure it stays dead
-        newState.assets = newAssets;
+    
+    // Factor decay/mean reversion
+    for (const factor in globalFactors) {
+        const key = factor as keyof GlobalFactors;
+        globalFactors[key] += (0.5 - globalFactors[key]) * 0.05; // Slowly return to neutral
     }
 
+    return { majorEventQueue, globalFactors };
+};
 
-    newState.globalFactors = newGlobalFactors;
-    return newState;
-}
-
-const minorNewsKeys = ['mn1', 'mn2', 'mn3', 'mn4', 'mn5', 'mn6', 'mn7', 'mn8'];
-
-export function generateDailyNewsSchedule(state: GameState): { schedule: GameState['dailyNewsSchedule'], factors: GlobalFactors } {
-    const schedule: GameState['dailyNewsSchedule'] = [];
-    const newFactors = { ...state.globalFactors };
-    const numberOfNews = Math.floor(Math.random() * 4) + 2; // 2 to 5 news items
-
-    for (let i = 0; i < numberOfNews; i++) {
-        const randomHour = Math.floor(Math.random() * 24);
-        const randomNewsKey = minorNewsKeys[Math.floor(Math.random() * minorNewsKeys.length)];
+export const generateDailyNewsSchedule = (state: GameState): { schedule: DailyNewsScheduleItem[], factors: GlobalFactors } => {
+    const { language } = state;
+    const schedule: DailyNewsScheduleItem[] = [];
+    const factors = { ...state.globalFactors };
+    
+    const newsSources = ["Reuters", "Bloomberg", "Associated Press", "CNBC"];
+    const assetIds = Object.keys(ASSETS);
+    
+    const numNews = Math.floor(Math.random() * 3) + 2;
+    for (let i = 0; i < numNews; i++) {
+        const randomAssetId = assetIds[Math.floor(Math.random() * assetIds.length)];
+        const asset = ASSETS[randomAssetId];
         
+        const headlineKeys = [
+            'news_earnings_strong', 'news_investigation', 'news_positive_outlook', 
+            'news_supply_concerns', 'news_buyback', 'news_regulatory_scrutiny',
+            'news_consumer_confidence', 'news_new_competition'
+        ];
+        const headlineKey = headlineKeys[Math.floor(Math.random() * headlineKeys.length)];
+
         schedule.push({
-            triggerHour: randomHour,
-            news: { 
-                id: `${randomNewsKey}-${state.date.day}-${i}`,
-                headline: t(`${randomNewsKey}_headline` as any, state.language),
-                source: t(`${randomNewsKey}_source` as any, state.language),
-             },
+            triggerHour: Math.floor(Math.random() * 12) + 8, // Between 8am and 8pm
+            news: {
+                id: crypto.randomUUID(),
+                headline: t(headlineKey, language, { assetName: asset.name }),
+                source: newsSources[Math.floor(Math.random() * newsSources.length)],
+            },
             triggered: false,
         });
     }
+
+    return { schedule, factors };
+};
+
+export const generateElectionEvent = (country: Country, year: number, language: Language): MajorEvent => {
+    const winner = country.politicalParties[Math.floor(Math.random() * country.politicalParties.length)];
+    const countryName = country.name; // Use the actual country name
+    const winnerName = winner.name;
     
-    newFactors.publicSentiment = Math.max(0, Math.min(1, newFactors.publicSentiment + (Math.random() - 0.5) * 0.01));
-
-    return { schedule, factors: newFactors };
-}
-
-export function generatePositiveCompanyNews(company: Company, language: 'en' | 'fa'): NewsItem {
-    const key = `cn${company.type}` as any;
     return {
-        id: `comp-${company.id}-${Date.now()}`,
-        headline: t(key, language, { companyName: company.name }),
-        source: company.name,
+        titleKey: 'electionResults',
+        // Pass parameters to the description translation key
+        descriptionKey: t('election_description', language, { winnerName, countryName }),
+        effects: { globalStability: -0.05, publicSentiment: Math.random() * 0.2 - 0.1 } // Add some sentiment shift
     };
-}
+};
+
+export const generatePositiveCompanyNews = (company: Company, language: Language): NewsItem => {
+    return {
+        id: crypto.randomUUID(),
+        headline: t('company_news_positive', language, { companyName: company.name }),
+        source: "Business Wire"
+    };
+};

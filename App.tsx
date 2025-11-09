@@ -22,7 +22,7 @@ const App: React.FC = () => {
             try {
                 const parsedState: GameState = JSON.parse(savedState);
                 dispatch({ type: 'LOAD_STATE', payload: parsedState });
-                if (parsedState.player.currentResidency) {
+                if (parsedState.player.name) {
                     setActiveModal(null);
                 }
             } catch (e) {
@@ -32,7 +32,7 @@ const App: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (!state.isPaused) {
+        if (!state.isPaused && state.player.name) { // Only save if game has started
             localStorage.setItem('deepTradingSimulatorState', JSON.stringify(state));
         }
     }, [state]);
@@ -82,14 +82,41 @@ const App: React.FC = () => {
         document.body.style.fontFamily = state.language === 'fa' ? "'Vazirmatn', sans-serif" : "'Lato', sans-serif";
     }, [state.language]);
 
-    const handleCountrySelect = (countryId: string) => {
-        dispatch({ type: 'SET_INITIAL_STATE', payload: { countryId } });
+    const handleCountrySelect = (countryId: string, playerName: string) => {
+        dispatch({ type: 'SET_INITIAL_STATE', payload: { countryId, playerName } });
         setActiveModal(null);
+    };
+
+    const handleSave = () => {
+        if(state.player.name) {
+            localStorage.setItem('deepTradingSimulatorState', JSON.stringify(state));
+            alert(t('saveConfirmation', state.language));
+        }
+    };
+
+    const handleQuit = () => {
+        if(window.confirm(t('quitConfirmation', state.language))) {
+            localStorage.removeItem('deepTradingSimulatorState');
+            window.location.reload();
+        }
+    };
+
+    const handleDelete = () => {
+        if(window.confirm(t('deleteConfirmation', state.language))) {
+            localStorage.removeItem('deepTradingSimulatorState');
+            window.location.reload();
+        }
     };
 
     return (
         <div className="bg-stone-950 text-stone-200 min-h-screen font-lato flex flex-col">
-            <Header gameState={state} dispatch={dispatch} />
+            <Header 
+                gameState={state} 
+                dispatch={dispatch}
+                onSave={handleSave}
+                onQuit={handleQuit}
+                onDelete={handleDelete}
+            />
             <NewsHeader majorEvent={state.majorEvent} tickerNews={state.newsTicker} language={state.language} />
             <MainContent
                 gameState={state}
