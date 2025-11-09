@@ -75,6 +75,13 @@ const App: React.FC = () => {
             setActiveModal({ type: 'event-popup', event: state.majorEvent });
         }
     }, [state.majorEvent]);
+    
+    useEffect(() => {
+        if (state.penaltyRequired && activeModal?.type !== 'penalty-choice') {
+            setActiveModal({ type: 'penalty-choice', penaltyInfo: state.penaltyRequired });
+        }
+    }, [state.penaltyRequired]);
+
 
     useEffect(() => {
         document.documentElement.lang = state.language;

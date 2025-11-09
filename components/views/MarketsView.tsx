@@ -1,24 +1,37 @@
 // components/views/MarketsView.tsx
 import React, { useState } from 'react';
-import { MarketsViewProps, AssetCategory } from '../../game/types';
+import { MarketsViewProps, AssetCategory, TradeBan, GameDate } from '../../game/types';
 import { formatCurrency, getFractionDigits } from '../../utils';
 import { ArrowUpIcon, ArrowDownIcon } from '../Icons';
 import { t } from '../../game/translations';
-// Fix: Imported COUNTRIES constant to resolve reference error.
 import { COUNTRIES } from '../../game/database';
 
-const MarketsView: React.FC<MarketsViewProps> = ({ assets, residency, setActiveModal, language }) => {
+function isDatePast(date1: GameDate, date2: GameDate) {
+    if (date1.year > date2.year) return true;
+    if (date1.year < date2.year) return false;
+    if (date1.month > date2.month) return true;
+    if (date1.month < date2.month) return false;
+    return date1.day >= date2.day;
+}
+
+const MarketsView: React.FC<MarketsViewProps> = ({ assets, tradeBans, date, residency, setActiveModal, language }) => {
     const [filter, setFilter] = useState<AssetCategory | 'All'>('All');
     
-    const categories: (AssetCategory | 'All')[] = ['All', 'Tech', 'Commodity', 'Crypto', 'Pharma', 'Real Estate', 'Global', 'Industrial', 'Consumer'];
+    const categories: (AssetCategory | 'All')[] = ['All', 'Tech', 'Commodity', 'Crypto', 'Pharma', 'Real Estate', 'Global', 'Industrial', 'Consumer', 'Finance'];
 
     const filteredAssets = Object.values(assets).filter(asset => filter === 'All' || asset.category === filter);
+    
+    const activeBannedAssetIds = new Set(
+        tradeBans
+            .filter(ban => !isDatePast(date, ban.expiryDate))
+            .flatMap(ban => ban.assetIds)
+    );
 
     return (
         <div>
-            <div className="mb-4 flex items-center space-x-2">
+            <div className="mb-4 flex items-center space-x-2 overflow-x-auto pb-2">
                 {categories.map(cat => (
-                    <button key={cat} onClick={() => setFilter(cat)} className={`px-3 py-1 text-sm font-semibold rounded-full transition-colors ${filter === cat ? 'bg-amber-400 text-stone-900' : 'bg-stone-800 hover:bg-stone-700 text-stone-300'}`}>
+                    <button key={cat} onClick={() => setFilter(cat)} className={`flex-shrink-0 px-3 py-1 text-sm font-semibold rounded-full transition-colors ${filter === cat ? 'bg-amber-400 text-stone-900' : 'bg-stone-800 hover:bg-stone-700 text-stone-300'}`}>
                         {t(cat.toLowerCase() as any, language) || cat}
                     </button>
                 ))}
@@ -37,7 +50,9 @@ const MarketsView: React.FC<MarketsViewProps> = ({ assets, residency, setActiveM
                         {filteredAssets.map(asset => {
                             const change = asset.price - asset.basePrice;
                             const changePercent = asset.basePrice > 0 ? (change / asset.basePrice) * 100 : 0;
-                            const isLocked = !COUNTRIES.find(c => c.id === residency)?.localMarkets.includes(asset.id) && (asset.category === 'Real Estate' || ['SIE_DE', 'VOW3_DE'].includes(asset.id));
+                            const isLockedByResidency = !COUNTRIES.find(c => c.id === residency)?.localMarkets.includes(asset.id) && (asset.category === 'Real Estate' || ['SIE_DE', 'VOW3_DE'].includes(asset.id));
+                            const isBanned = activeBannedAssetIds.has(asset.id);
+                            const isLocked = isLockedByResidency || isBanned;
 
                             return (
                                 <tr key={asset.id} className="border-b border-stone-800 hover:bg-stone-800/50">
@@ -51,7 +66,9 @@ const MarketsView: React.FC<MarketsViewProps> = ({ assets, residency, setActiveM
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         {isLocked ? (
-                                            <span className="text-xs text-stone-500 italic">{t('marketLocked', language)}</span>
+                                            <span className="text-xs text-stone-500 italic">
+                                                {isBanned ? 'Trading Banned' : t('marketLocked', language)}
+                                            </span>
                                         ) : (
                                             <div className="flex justify-end space-x-2">
                                                 <button onClick={() => setActiveModal({ type: 'trade', assetId: asset.id })} className="font-semibold text-sky-400 hover:text-sky-300">{t('trade', language)}</button>

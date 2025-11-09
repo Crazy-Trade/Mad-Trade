@@ -48,6 +48,7 @@ const translations: Record<Language, Record<string, string>> = {
         skipDay: 'Skip Day',
         skip1Week: 'Skip 1 Week',
         skip2Weeks: 'Skip 2 Weeks',
+        simulating: 'Simulating...',
         
         // Country Selection
         selectCountry: 'Select a Country of Origin',
@@ -105,6 +106,11 @@ const translations: Record<Language, Record<string, string>> = {
         defermentsRemaining: "{count} deferments remaining",
         noDeferments: "No deferments remaining",
         monthlyPayment: 'Est. Monthly Payment',
+        ventureCapitalLoan: 'Venture Capital Loan',
+        ventureLoanTerms: 'Take a high-interest loan. You must establish a company within 1 year. The bank will take 20% of that company\'s monthly income until 30% of the principal is repaid.',
+        ventureLoanAwaitingCompany: 'Awaiting company establishment. Deadline: {day}/{month}/{year}',
+        ventureLoanRepaying: 'Repaying via {companyName}. {repaidAmount} / {targetAmount} repaid.',
+        applyForVenture: 'Apply for Venture Loan',
 
         // Log & News
         eventLog: 'Event Log',
@@ -174,10 +180,23 @@ const translations: Record<Language, Record<string, string>> = {
         negative: 'negative',
         
         // Bank Logs
+        loanTaken: 'Took a standard loan of ${amount}.',
+        ventureLoanTaken: 'Took a high-risk venture loan of ${amount}.',
+        ventureLoanProfitShare: 'Bank took a 20% profit share of ${amount} from {companyName} for venture loan repayment.',
+        ventureLoanDeadlineMissed: 'FAILURE! You failed to establish a company for your venture loan. A penalty of ${penalty} has been seized from your accounts.',
+        ventureLoanInterestPayment: 'Paid venture loan interest of ${amount}.',
         monthlyLoanPayment: "Made monthly loan payment of ${amount}.",
         loanRepaymentDiscount: "Repaid ${amount} of your loan by paying ${paidAmount}. The 2% early payment bonus saved you ${savedAmount}!",
         loanDeferment: "Deferred this month's loan payment. Penalties have been applied.",
         loanDefermentPenalty: "Deferred this month's loan payment. A penalty of ${penalty} has been deducted from your cash.",
+
+        // Penalties
+        loanAbuseTitle: 'Loan Abuse Detected',
+        loanAbuseDesc: 'You have taken loans too frequently this month. To prevent misuse of the financial system, you must choose a penalty.',
+        penaltyOptionFine: 'Pay 30% Fine',
+        penaltyOptionBan: '1-Month Trading Ban',
+        penaltyFinePaid: 'Paid a fine of ${amount} for loan abuse.',
+        penaltyTradeBan: 'Accepted a 1-month trading ban on all state-owned assets.',
 
         // Dynamic News
         news_earnings_strong: '{assetName} sees strong quarterly earnings report.',
@@ -226,8 +245,11 @@ const translations: Record<Language, Record<string, string>> = {
         quit: 'Quit to Menu',
         deleteSave: 'Delete Save',
         saveConfirmation: 'Game Saved!',
-        quitConfirmation: 'Are you sure you want to quit? Your progress will be saved, but you will return to the main menu.',
+        quitConfirmation: 'Are you sure you want to quit? This will reload the game to the main menu.',
         deleteConfirmation: 'Are you sure you want to permanently delete your save data? This action cannot be undone.',
+        stopLoss: 'Stop Loss',
+        takeProfit: 'Take Profit',
+        optional: 'Optional',
 
         // Charting
         priceChart: 'Price Chart',
@@ -235,6 +257,7 @@ const translations: Record<Language, Record<string, string>> = {
         oneWeek: '1W',
         oneYear: '1Y',
         noData: 'Not enough historical data.',
+        sma: 'SMA (7)',
 
     },
     fa: {
@@ -283,6 +306,7 @@ const translations: Record<Language, Record<string, string>> = {
         skipDay: 'رد کردن روز',
         skip1Week: 'رد کردن ۱ هفته',
         skip2Weeks: 'رد کردن ۲ هفته',
+        simulating: 'در حال شبیه‌سازی...',
 
         // Country Selection
         selectCountry: 'یک کشور مبدا انتخاب کنید',
@@ -340,6 +364,11 @@ const translations: Record<Language, Record<string, string>> = {
         defermentsRemaining: '{count} تعویق باقی مانده است',
         noDeferments: 'تعویقی باقی نمانده است',
         monthlyPayment: 'پرداخت ماهانه تخمینی',
+        ventureCapitalLoan: 'وام سرمایه‌گذاری خطرپذیر',
+        ventureLoanTerms: 'یک وام با بهره بالا بگیرید. شما باید ظرف ۱ سال یک شرکت تاسیس کنید. بانک ۲۰٪ از درآمد ماهانه آن شرکت را تا زمان بازپرداخت ۳۰٪ از اصل وام، دریافت خواهد کرد.',
+        ventureLoanAwaitingCompany: 'در انتظار تاسیس شرکت. مهلت: {day}/{month}/{year}',
+        ventureLoanRepaying: 'در حال بازپرداخت از طریق {companyName}. مبلغ {repaidAmount} / {targetAmount} بازپرداخت شد.',
+        applyForVenture: 'درخواست وام خطرپذیر',
 
         // Log & News
         eventLog: 'گزارش رویدادها',
@@ -409,10 +438,23 @@ const translations: Record<Language, Record<string, string>> = {
         negative: 'منفی',
         
         // Bank Logs
+        loanTaken: 'وام عادی به مبلغ ${amount} دریافت شد.',
+        ventureLoanTaken: 'وام سرمایه‌گذاری خطرپذیر به مبلغ ${amount} دریافت شد.',
+        ventureLoanProfitShare: 'بانک ۲۰٪ سود سهام به مبلغ ${amount} از شرکت {companyName} برای بازپرداخت وام خطرپذیر برداشت کرد.',
+        ventureLoanDeadlineMissed: 'شکست! شما نتوانستید برای وام خطرپذیر خود شرکتی تاسیس کنید. جریمه‌ای به مبلغ ${penalty} از حساب‌های شما توقیف شد.',
+        ventureLoanInterestPayment: 'بهره وام خطرپذیر به مبلغ ${amount} پرداخت شد.',
         monthlyLoanPayment: "پرداخت ماهانه وام به مبلغ ${amount} انجام شد.",
         loanRepaymentDiscount: "شما با پرداخت {paidAmount}$، مبلغ {amount}$ از وام خود را تسویه کردید. پاداش ۲٪ پرداخت زودهنگام، {savedAmount}$ برای شما ذخیره کرد!",
         loanDeferment: "پرداخت وام این ماه به تعویق افتاد. جریمه‌ها اعمال شده است.",
         loanDefermentPenalty: "پرداخت وام این ماه به تعویق افتاد. جریمه‌ای به مبلغ ${penalty} از حساب شما کسر شد.",
+
+        // Penalties
+        loanAbuseTitle: 'سوء استفاده از وام شناسایی شد',
+        loanAbuseDesc: 'شما در این ماه بیش از حد وام گرفته‌اید. برای جلوگیری از سوء استفاده از سیستم مالی، باید یک جریمه انتخاب کنید.',
+        penaltyOptionFine: 'پرداخت ۳۰٪ جریمه',
+        penaltyOptionBan: 'ممنوعیت معامله به مدت ۱ ماه',
+        penaltyFinePaid: 'جریمه‌ای به مبلغ ${amount} برای سوء استفاده از وام پرداخت شد.',
+        penaltyTradeBan: 'ممنوعیت معامله به مدت ۱ ماه بر روی تمام دارایی‌های دولتی پذیرفته شد.',
 
         // Dynamic News
         news_earnings_strong: '{assetName} گزارش درآمد فصلی قوی را منتشر کرد.',
@@ -460,8 +502,11 @@ const translations: Record<Language, Record<string, string>> = {
         quit: 'خروج به منو',
         deleteSave: 'حذف ذخیره',
         saveConfirmation: 'بازی ذخیره شد!',
-        quitConfirmation: 'آیا مطمئن هستید که می‌خواهید خارج شوید؟ پیشرفت شما ذخیره می‌شود، اما به منوی اصلی باز خواهید گشت.',
+        quitConfirmation: 'آیا مطمئن هستید که می‌خواهید خارج شوید؟ این کار بازی را مجدداً بارگذاری کرده و به منوی اصلی بازمی‌گرداند.',
         deleteConfirmation: 'آیا مطمئن هستید که می‌خواهید داده‌های ذخیره شده خود را برای همیشه حذف کنید؟ این عمل قابل بازگشت نیست.',
+        stopLoss: 'حد ضرر',
+        takeProfit: 'حد سود',
+        optional: 'اختیاری',
 
         // Charting
         priceChart: 'نمودار قیمت',
@@ -469,6 +514,7 @@ const translations: Record<Language, Record<string, string>> = {
         oneWeek: '۱ هفته',
         oneYear: '۱ سال',
         noData: 'داده تاریخی کافی وجود ندارد.',
+        sma: 'میانگین متحرک (۷)',
     },
 };
 

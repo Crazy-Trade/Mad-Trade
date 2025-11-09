@@ -3,7 +3,7 @@ import { GameState, Asset, NewsItem, DailyNewsScheduleItem, MajorEvent, GlobalFa
 import { ASSETS, COUNTRIES } from './database';
 import { t } from './translations';
 
-export const DAY_DURATION_MS = 180000; // 3 minutes per day
+export const DAY_DURATION_MS = 150000; // 2.5 minutes per day
 export const PRICE_UPDATE_INTERVAL_MS = 15000; // Update prices every 15 seconds
 
 export const applyIntradayNoise = (assets: Record<string, Asset>): Record<string, Asset> => {
@@ -12,6 +12,11 @@ export const applyIntradayNoise = (assets: Record<string, Asset>): Record<string
         const asset = { ...newAssets[assetId] };
         const noise = (Math.random() - 0.5) * asset.volatility * 0.1;
         asset.price *= (1 + noise);
+        
+        // Update day high/low
+        asset.dayHigh = Math.max(asset.dayHigh, asset.price);
+        asset.dayLow = Math.min(asset.dayLow, asset.price);
+
         newAssets[assetId] = asset;
     }
     return newAssets;
@@ -34,15 +39,21 @@ export const updateAllPrices = (state: GameState): Record<string, Asset> => {
         
         asset.price *= (1 + priceChange);
         asset.price = Math.max(0.00000001, asset.price);
-        asset.basePrice = asset.price; // Update base price for next day's 24h change calc
+        
+        // Update day high/low for the final price of the day
+        asset.dayHigh = Math.max(asset.dayHigh, asset.price);
+        asset.dayLow = Math.min(asset.dayLow, asset.price);
+        
         newAssets[assetId] = asset;
     }
     return newAssets;
 };
 
-export const processEvents = (state: GameState): { majorEventQueue: MajorEvent[], globalFactors: GlobalFactors } => {
+export const processEvents = (state: GameState): { majorEventQueue: MajorEvent[], globalFactors: GlobalFactors, newsArchive: NewsItem[] } => {
     const majorEventQueue = [...state.majorEventQueue];
     const globalFactors = { ...state.globalFactors };
+    let newsArchive = [...state.newsArchive];
+
     const eventPool: MajorEvent[] = [
         { titleKey: 'event_tech_summit_title', descriptionKey: 'event_tech_summit_desc', effects: { techInnovation: 0.2, publicSentiment: 0.1 } },
         { titleKey: 'event_us_fed_hike_title', descriptionKey: 'event_us_fed_hike_desc', effects: { usFedPolicy: -0.3, usEconomy: -0.1, globalStability: -0.1 } },
@@ -58,6 +69,13 @@ export const processEvents = (state: GameState): { majorEventQueue: MajorEvent[]
     if (Math.random() < 0.35) { // 35% chance of a major event per day
         const event = eventPool[Math.floor(Math.random() * eventPool.length)];
         majorEventQueue.push(event);
+        // Also add the major event to the news archive
+        newsArchive.unshift({
+            id: crypto.randomUUID(),
+            headline: t(event.titleKey, state.language),
+            source: t('breakingNews', state.language),
+            isMajor: true,
+        });
     }
     
     // Apply effects from current event if any
@@ -75,7 +93,7 @@ export const processEvents = (state: GameState): { majorEventQueue: MajorEvent[]
         globalFactors[key] += (0.5 - globalFactors[key]) * 0.05; // Slowly return to neutral
     }
 
-    return { majorEventQueue, globalFactors };
+    return { majorEventQueue, globalFactors, newsArchive };
 };
 
 export const generateDailyNewsSchedule = (state: GameState): { schedule: DailyNewsScheduleItem[], factors: GlobalFactors } => {
@@ -104,6 +122,7 @@ export const generateDailyNewsSchedule = (state: GameState): { schedule: DailyNe
                 id: crypto.randomUUID(),
                 headline: t(headlineKey, language, { assetName: asset.name }),
                 source: newsSources[Math.floor(Math.random() * newsSources.length)],
+                isMajor: false,
             },
             triggered: false,
         });
@@ -129,6 +148,7 @@ export const generatePositiveCompanyNews = (company: Company, language: Language
     return {
         id: crypto.randomUUID(),
         headline: t('company_news_positive', language, { companyName: company.name }),
-        source: "Business Wire"
+        source: "Business Wire",
+        isMajor: false,
     };
 };

@@ -1,21 +1,27 @@
 // components/TimeControls.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { GameAction, TimeControlsProps } from '../game/types';
 import { PlayIcon, PauseIcon } from './Icons';
 import { t } from '../game/translations';
 
-const TimeControls: React.FC<TimeControlsProps> = ({ isSimulating, isPaused, dispatch, date, language }) => {
+const TimeControls: React.FC<TimeControlsProps> = ({ isSimulating, daysToSimulate, isPaused, dispatch, date, language }) => {
     
     const handleSkip = (days: number) => {
         dispatch({ type: 'SKIP_DAYS', payload: { days } });
     };
+
+    const handleTogglePause = () => {
+        // Prevent unpausing while a long simulation is running
+        if (isSimulating) return;
+        dispatch({ type: 'SET_PAUSED', payload: !isPaused });
+    }
 
     if (isSimulating) {
         return (
              <div className="flex items-center justify-center space-x-2">
                  <div className="bg-stone-800 rounded-md p-2 text-center">
                     <div className="font-mono text-lg text-amber-400 animate-pulse">
-                        Simulating...
+                        {t('simulating', language)} {daysToSimulate > 1 ? `${daysToSimulate} days` : ''}
                     </div>
                 </div>
             </div>
@@ -33,7 +39,7 @@ const TimeControls: React.FC<TimeControlsProps> = ({ isSimulating, isPaused, dis
             <div className="flex items-center bg-stone-800 rounded-md">
                 <button
                     title={t(isPaused ? 'play' : 'pause', language)}
-                    onClick={() => dispatch({ type: 'SET_PAUSED', payload: !isPaused })}
+                    onClick={handleTogglePause}
                     className="p-2 text-stone-300 hover:text-amber-400 transition-colors"
                 >
                     {isPaused ? <PlayIcon /> : <PauseIcon />}

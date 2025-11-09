@@ -11,6 +11,9 @@ const TradeModal: React.FC<TradeModalProps> = ({ onClose, asset, portfolioItem, 
     const [orderType, setOrderType] = useState<'spot' | 'margin'>('spot');
     const [quantity, setQuantity] = useState(1);
     const [leverage, setLeverage] = useState(2);
+    const [stopLoss, setStopLoss] = useState<number | undefined>(undefined);
+    const [takeProfit, setTakeProfit] = useState<number | undefined>(undefined);
+
 
     const isBuy = tradeType === 'buy';
     const totalCost = quantity * asset.price;
@@ -27,27 +30,50 @@ const TradeModal: React.FC<TradeModalProps> = ({ onClose, asset, portfolioItem, 
         if (orderType === 'spot') {
             dispatch({ type: 'SPOT_TRADE', payload: { assetId: asset.id, quantity, price: asset.price, type: tradeType } });
         } else { // Margin
-            dispatch({ type: 'OPEN_MARGIN_POSITION', payload: { assetId: asset.id, quantity, price: asset.price, leverage, type: isBuy ? 'long' : 'short' } });
+            dispatch({ type: 'OPEN_MARGIN_POSITION', payload: { assetId: asset.id, quantity, price: asset.price, leverage, type: isBuy ? 'long' : 'short', stopLoss, takeProfit } });
         }
         onClose();
     };
     
+    const stopLossInput = (
+         <div className="flex items-center justify-between">
+            <label className="text-sm text-stone-400">{t('stopLoss', language)} ({t('optional', language)})</label>
+            <input 
+                type="number"
+                placeholder={isBuy ? (asset.price * 0.9).toFixed(2) : (asset.price * 1.1).toFixed(2)}
+                value={stopLoss || ''}
+                onChange={e => setStopLoss(e.target.value ? parseFloat(e.target.value) : undefined)}
+                className="w-28 bg-stone-900 border border-stone-700 rounded-md p-1 text-right focus:outline-none focus:ring-1 focus:ring-amber-400"
+            />
+        </div>
+    );
+
+     const takeProfitInput = (
+         <div className="flex items-center justify-between">
+            <label className="text-sm text-stone-400">{t('takeProfit', language)} ({t('optional', language)})</label>
+            <input 
+                type="number"
+                placeholder={isBuy ? (asset.price * 1.1).toFixed(2) : (asset.price * 0.9).toFixed(2)}
+                value={takeProfit || ''}
+                onChange={e => setTakeProfit(e.target.value ? parseFloat(e.target.value) : undefined)}
+                className="w-28 bg-stone-900 border border-stone-700 rounded-md p-1 text-right focus:outline-none focus:ring-1 focus:ring-amber-400"
+            />
+        </div>
+    );
+
     return (
         <Modal onClose={onClose} title={`${t('trade', language)} ${asset.name}`} lang={language}>
             <div>
-                {/* Order Type Tabs */}
                 <div className="flex border-b border-stone-700 mb-4">
                     <button onClick={() => setOrderType('spot')} className={`px-4 py-2 text-sm font-bold ${orderType === 'spot' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-stone-400'}`}>Spot</button>
                     <button onClick={() => setOrderType('margin')} className={`px-4 py-2 text-sm font-bold ${orderType === 'margin' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-stone-400'}`}>Margin</button>
                 </div>
 
-                {/* Trade Type Tabs */}
                 <div className="flex justify-center space-x-2 mb-4">
                     <button onClick={() => setTradeType('buy')} className={`w-full py-2 rounded-md font-bold ${isBuy ? 'bg-emerald-500 text-white' : 'bg-stone-800 hover:bg-stone-700'}`}>{t('buy', language)}</button>
                     <button onClick={() => setTradeType('sell')} className={`w-full py-2 rounded-md font-bold ${!isBuy ? 'bg-rose-500 text-white' : 'bg-stone-800 hover:bg-stone-700'}`}>{t(orderType === 'spot' ? 'sell' : 'short', language)}</button>
                 </div>
 
-                {/* Quantity Input */}
                 <div className="flex items-center justify-between bg-stone-800 p-3 rounded-md mb-4">
                     <span className="text-stone-400">{t('quantity', language)}</span>
                     <div className="flex items-center space-x-3">
@@ -58,25 +84,28 @@ const TradeModal: React.FC<TradeModalProps> = ({ onClose, asset, portfolioItem, 
                      <button onClick={() => setQuantity(isBuy ? maxBuy : maxSell)} className="text-amber-400 text-xs font-bold hover:underline">{t('max', language)}</button>
                 </div>
                 
-                {/* Leverage Selector */}
                 {orderType === 'margin' && (
-                    <div className="mb-4">
-                        <label className="block text-sm font-bold text-stone-400 mb-2">{t('leverage', language)}</label>
-                        <div className="grid grid-cols-6 gap-2">
-                            {[2, 5, 10, 25, 50, 100].map(l => (
-                                <button key={l} onClick={() => setLeverage(l)} className={`py-2 rounded-md font-bold text-xs ${leverage === l ? 'bg-violet-500 text-white' : 'bg-stone-800 hover:bg-stone-700'}`}>x{l}</button>
-                            ))}
+                    <>
+                        <div className="mb-4">
+                            <label className="block text-sm font-bold text-stone-400 mb-2">{t('leverage', language)}</label>
+                            <div className="grid grid-cols-6 gap-2">
+                                {[2, 5, 10, 25, 50, 100].map(l => (
+                                    <button key={l} onClick={() => setLeverage(l)} className={`py-2 rounded-md font-bold text-xs ${leverage === l ? 'bg-violet-500 text-white' : 'bg-stone-800 hover:bg-stone-700'}`}>x{l}</button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                        <div className="bg-stone-800 p-3 rounded-md mb-4 space-y-2">
+                            {stopLossInput}
+                            {takeProfitInput}
+                        </div>
+                    </>
                 )}
 
-                {/* Summary */}
                 <div className="bg-stone-950 p-4 rounded-md space-y-2 text-sm">
                     <div className="flex justify-between"><span>{t('price', language)}:</span><span>{formatCurrency(asset.price, { maximumFractionDigits: getFractionDigits(asset.price) })}</span></div>
                     <div className="flex justify-between font-bold text-lg"><span className="text-amber-400">{orderType === 'spot' ? t('total', language) : t('margin', language)}:</span><span className="text-amber-400">{formatCurrency(orderType === 'spot' ? totalCost : marginCost)}</span></div>
                 </div>
 
-                {/* Confirm Button */}
                 <button 
                     onClick={handleConfirm} 
                     disabled={(orderType === 'spot' && !isBuy) ? !hasEnoughToSell : !canAfford}

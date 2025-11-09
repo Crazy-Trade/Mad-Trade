@@ -20,6 +20,7 @@ import ImmigrationModal from './ImmigrationModal';
 import GlobalInfluenceModal from './GlobalInfluenceModal';
 import EventModal from './EventModal';
 import AnalystModal from './AnalystModal';
+import PenaltyChoiceModal from './PenaltyChoiceModal';
 import { t } from '../game/translations';
 import { COUNTRIES } from '../game/database';
 import TimeControls from './TimeControls';
@@ -29,11 +30,12 @@ type Tab = 'markets' | 'portfolio' | 'corporate' | 'politics' | 'bank' | 'log' |
 const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeModal, setActiveModal }) => {
     const [activeTab, setActiveTab] = useState<Tab>('markets');
     const { assets, player, language } = gameState;
+    const [daysToSimulate, setDaysToSimulate] = useState(0);
 
     const renderActiveView = () => {
         switch (activeTab) {
             case 'markets':
-                return <MarketsView assets={assets} residency={player.currentResidency} setActiveModal={setActiveModal} language={language} />;
+                return <MarketsView assets={assets} tradeBans={player.tradeBans} date={gameState.date} residency={player.currentResidency} setActiveModal={setActiveModal} language={language} />;
             case 'portfolio':
                 return <PortfolioView gameState={gameState} dispatch={dispatch} language={language} />;
             case 'corporate':
@@ -41,7 +43,7 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
             case 'politics':
                 return <PoliticsView gameState={gameState} setActiveModal={setActiveModal} language={language} />;
             case 'bank':
-                return <BankView loan={player.loan} netWorth={player.cash} playerCash={player.cash} dispatch={dispatch} setActiveModal={setActiveModal} language={language} />;
+                return <BankView loan={player.loan} ventureLoans={player.ventureLoans} companies={player.companies} netWorth={player.cash} playerCash={player.cash} date={gameState.date} dispatch={dispatch} setActiveModal={setActiveModal} language={language} />;
             case 'log':
                 return <LogView log={player.log} language={language} />;
             case 'news':
@@ -54,7 +56,6 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
     const netWorth = player.cash; // Simplified for now
     const totalPoliticalCapital = Object.values(player.politicalCapital).reduce((sum, val) => sum + val, 0);
 
-
     const tabs: { id: Tab, label: string }[] = [
         { id: 'markets', label: t('markets', language) },
         { id: 'portfolio', label: t('portfolio', language) },
@@ -65,13 +66,29 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
         { id: 'log', label: t('log', language) },
     ];
 
+    // This is a bit of a hack to get the number of days for the UI
+    const originalDispatch = dispatch;
+    const customDispatch: typeof dispatch = (action) => {
+        if(action.type === 'SKIP_DAYS') {
+            setDaysToSimulate(action.payload.days);
+        }
+        originalDispatch(action);
+    }
+     React.useEffect(() => {
+        if (!gameState.isSimulating) {
+            setDaysToSimulate(0);
+        }
+    }, [gameState.isSimulating]);
+
+
     return (
         <main className="flex-grow p-6 flex flex-col">
             <div className="flex justify-center mb-6">
                 <TimeControls
                     isSimulating={gameState.isSimulating}
+                    daysToSimulate={daysToSimulate}
                     isPaused={gameState.isPaused}
-                    dispatch={dispatch}
+                    dispatch={customDispatch}
                     date={gameState.date}
                     language={language}
                 />
@@ -206,6 +223,14 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
                     dispatch({ type: 'DISMISS_MAJOR_EVENT' });
                     setActiveModal(null);
                 }} language={language} />
+            )}
+             {activeModal?.type === 'penalty-choice' && (
+                <PenaltyChoiceModal
+                    onClose={() => setActiveModal(null)}
+                    penaltyInfo={activeModal.penaltyInfo}
+                    dispatch={dispatch}
+                    language={language}
+                />
             )}
         </main>
     );

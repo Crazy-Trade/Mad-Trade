@@ -21,19 +21,26 @@ export type GlobalFactors = Record<GlobalFactor, number>;
 
 export interface PriceHistory {
     date: { year: number, month: number, day: number };
-    price: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
 }
 export interface Asset {
     id: string;
     name: string;
     category: AssetCategory;
     price: number;
-    basePrice: number;
+    basePrice: number; // Price at start of day
+    dayOpen: number;
+    dayHigh: number;
+    dayLow: number;
     volatility: number;
     trend: number; // small positive or negative base trend
     dna: Partial<Record<GlobalFactor, number>>;
     priceHistory: PriceHistory[];
     isScam?: boolean;
+    isStateOwned?: boolean;
 }
 
 export interface PortfolioItem {
@@ -50,6 +57,8 @@ export interface MarginPosition {
     leverage: number;
     type: 'long' | 'short';
     margin: number;
+    stopLoss?: number;
+    takeProfit?: number;
 }
 
 export type CompanyEffectType = 'income_halt' | 'tax_break';
@@ -84,6 +93,20 @@ export interface PendingOrder {
     limitPrice: number;
 }
 
+export interface VentureLoan {
+    id: string;
+    principal: number;
+    interestRate: number;
+    companyId: string | null;
+    deadlineDate: GameDate;
+    profitShareRepaid: number;
+}
+
+export interface TradeBan {
+    assetIds: string[];
+    expiryDate: GameDate;
+}
+
 export interface Player {
     name: string;
     cash: number;
@@ -96,6 +119,9 @@ export interface Player {
         defermentsUsed: number;
         isDeferredThisMonth: boolean;
     };
+    ventureLoans: VentureLoan[];
+    loanActionsThisMonth: number;
+    tradeBans: TradeBan[];
     politicalCapital: Record<string, number>;
     currentResidency: string; // Country ID
     residencyHistory: string[];
@@ -107,6 +133,7 @@ export interface NewsItem {
     id: string;
     headline: string;
     source: string;
+    isMajor?: boolean;
 }
 
 export interface MajorEvent {
@@ -119,6 +146,10 @@ export interface DailyNewsScheduleItem {
     triggerHour: number;
     news: NewsItem;
     triggered: boolean;
+}
+
+export interface PenaltyInfo {
+    loanAmount: number;
 }
 
 export interface GameState {
@@ -136,6 +167,7 @@ export interface GameState {
     dailyNewsSchedule: DailyNewsScheduleItem[];
     priceUpdateAccumulator: number;
     language: Language;
+    penaltyRequired: PenaltyInfo | null;
 }
 
 export type ModalType =
@@ -152,7 +184,8 @@ export type ModalType =
     | { type: 'immigration' }
     | { type: 'global-influence' }
     | { type: 'event-popup'; event: MajorEvent }
-    | { type: 'analyst'; analysisType: 'prediction' | 'analysis' };
+    | { type: 'analyst'; analysisType: 'prediction' | 'analysis' }
+    | { type: 'penalty-choice'; penaltyInfo: PenaltyInfo };
 
 export type CorporateActionType = 'marketing' | 'research' | 'lobbying';
 export interface CorporateAction {
@@ -170,14 +203,16 @@ export type GameAction =
     | { type: 'SKIP_DAYS'; payload: { days: number } }
     | { type: 'SET_INITIAL_STATE'; payload: { countryId: string, playerName: string } }
     | { type: 'SPOT_TRADE'; payload: { assetId: string; quantity: number; price: number; type: 'buy' | 'sell' } }
-    | { type: 'OPEN_MARGIN_POSITION'; payload: { assetId: string; quantity: number; price: number; leverage: number; type: 'long' | 'short' } }
-    | { type: 'CLOSE_MARGIN_POSITION'; payload: { positionId: string } }
+    | { type: 'OPEN_MARGIN_POSITION'; payload: { assetId: string; quantity: number; price: number; leverage: number; type: 'long' | 'short', stopLoss?: number, takeProfit?: number } }
+    | { type: 'CLOSE_MARGIN_POSITION'; payload: { positionId: string, closingPrice?: number } }
     | { type: 'ESTABLISH_COMPANY'; payload: Company }
     | { type: 'UPGRADE_COMPANY'; payload: { companyId: string, cost: number, outcome: UpgradeOutcome } }
     | { type: 'EXECUTE_CORPORATE_ACTION'; payload: CorporateAction }
     | { type: 'TAKE_LOAN'; payload: number }
+    | { type: 'TAKE_VENTURE_LOAN'; payload: { amount: number, interestRate: number } }
     | { type: 'REPAY_LOAN'; payload: number }
     | { type: 'DEFER_LOAN_PAYMENT' }
+    | { type: 'CHOOSE_PENALTY'; payload: { type: 'ban' | 'fine', loanAmount: number } }
     | { type: 'CHANGE_RESIDENCY'; payload: { countryId: string, cost: number } }
     | { type: 'EXECUTE_POLITICAL_ACTION'; payload: PoliticalAction }
     | { type: 'EXECUTE_LOCAL_LOBBY'; payload: { category: AssetCategory, costPC: number } }
@@ -204,7 +239,7 @@ export interface Country {
     electionCycle?: { year: number, month: number, interval: number };
 }
 
-export type AssetCategory = 'Tech' | 'Commodity' | 'Crypto' | 'Pharma' | 'Real Estate' | 'Global' | 'Industrial' | 'Consumer';
+export type AssetCategory = 'Tech' | 'Commodity' | 'Crypto' | 'Pharma' | 'Real Estate' | 'Global' | 'Industrial' | 'Consumer' | 'Finance';
 
 export type CompanyType = 'tech' | 'mining' | 'pharma' | 'media' | 'finance' | 'real_estate';
 
@@ -233,6 +268,7 @@ export interface HeaderProps {
 
 export interface TimeControlsProps {
     isSimulating: boolean;
+    daysToSimulate: number;
     isPaused: boolean;
     dispatch: React.Dispatch<GameAction>;
     date: GameDate;
@@ -272,6 +308,13 @@ export interface OrderModalProps {
     playerCash: number;
     dispatch: React.Dispatch<GameAction>;
     language: Language;
+}
+export interface Candle {
+    date: { year: number, month: number, day: number };
+    open: number;
+    high: number;
+    low: number;
+    close: number;
 }
 
 export interface ChartModalProps {
@@ -353,9 +396,17 @@ export interface AnalystModalProps {
     dispatch: React.Dispatch<GameAction>;
     language: Language;
 }
+export interface PenaltyChoiceModalProps {
+    onClose: () => void;
+    penaltyInfo: PenaltyInfo;
+    dispatch: React.Dispatch<GameAction>;
+    language: Language;
+}
 
 export interface MarketsViewProps {
     assets: Record<string, Asset>;
+    tradeBans: TradeBan[];
+    date: GameDate;
     residency: string;
     setActiveModal: (modal: ModalType) => void;
     language: Language;
@@ -382,8 +433,11 @@ export interface PoliticsViewProps {
 
 export interface BankViewProps {
     loan: Player['loan'];
+    ventureLoans: Player['ventureLoans'];
+    companies: Player['companies'];
     netWorth: number;
     playerCash: number;
+    date: GameDate;
     dispatch: React.Dispatch<GameAction>;
     setActiveModal: (modal: ModalType) => void;
     language: Language;

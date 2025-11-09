@@ -15,7 +15,7 @@ const NewsView: React.FC<NewsViewProps> = ({ newsArchive, language }) => {
                         {newsArchive.map(item => (
                             <div key={item.id} className="text-sm border-b border-stone-800 pb-2">
                                 <p className="text-stone-300">
-                                    <span className="font-bold text-sky-400">{item.source}:</span> {item.headline}
+                                    <span className={`font-bold ${item.isMajor ? 'text-rose-500' : 'text-sky-400'}`}>{item.source}:</span> {item.headline}
                                 </p>
                             </div>
                         ))}
