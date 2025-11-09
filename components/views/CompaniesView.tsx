@@ -1,8 +1,10 @@
 // components/views/CompaniesView.tsx
 import React from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { CompaniesViewProps, CompanyType } from '../../game/types';
 import { formatCurrency } from '../../utils';
-import { t } from '../../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../../game/translations.js';
 
 const companyTypes: CompanyType[] = ['tech', 'mining', 'pharma', 'media', 'finance', 'real_estate'];
 

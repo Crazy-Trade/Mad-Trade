@@ -1,10 +1,12 @@
 // components/CompanyModal.tsx
 import React, { useState } from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { CompanyModalProps, Company } from '../game/types';
 import Modal from './Modal';
 import { formatCurrency } from '../utils';
 import { COMPANY_TYPES, COUNTRIES } from '../game/database';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 
 const CompanyModal: React.FC<CompanyModalProps> = ({ onClose, companyType, dispatch, playerCash, residency, language }) => {
     const [name, setName] = useState('');

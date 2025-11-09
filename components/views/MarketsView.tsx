@@ -1,9 +1,11 @@
 // components/views/MarketsView.tsx
 import React, { useState } from 'react';
-import { MarketsViewProps, AssetCategory, TradeBan, GameDate } from '../../game/types';
+// Fix: Correctly import types from the newly defined types file.
+import { MarketsViewProps, AssetCategory, TradeBan, GameDate, Asset } from '../../game/types';
 import { formatCurrency, getFractionDigits } from '../../utils';
-import { ArrowUpIcon, ArrowDownIcon } from '../Icons';
-import { t } from '../../game/translations';
+import { ArrowUpIcon, ArrowDownIcon, GovernmentBuildingIcon } from '../Icons';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../../game/translations.js';
 import { COUNTRIES } from '../../game/database';
 
 function isDatePast(date1: GameDate, date2: GameDate) {
@@ -19,7 +21,8 @@ const MarketsView: React.FC<MarketsViewProps> = ({ assets, tradeBans, date, resi
     
     const categories: (AssetCategory | 'All')[] = ['All', 'Tech', 'Commodity', 'Crypto', 'Pharma', 'Real Estate', 'Global', 'Industrial', 'Consumer', 'Finance'];
 
-    const filteredAssets = Object.values(assets).filter(asset => filter === 'All' || asset.category === filter);
+    // Fix: Explicitly type 'asset' parameter in filter to resolve 'unknown' type errors.
+    const filteredAssets = Object.values(assets).filter((asset: Asset) => filter === 'All' || asset.category === filter);
     
     const activeBannedAssetIds = new Set(
         tradeBans
@@ -56,7 +59,10 @@ const MarketsView: React.FC<MarketsViewProps> = ({ assets, tradeBans, date, resi
 
                             return (
                                 <tr key={asset.id} className="border-b border-stone-800 hover:bg-stone-800/50">
-                                    <th scope="row" className="px-6 py-4 font-bold text-stone-200 whitespace-nowrap">{asset.name}</th>
+                                    <th scope="row" className="px-6 py-4 font-bold text-stone-200 whitespace-nowrap">
+                                        {asset.name}
+                                        {asset.isStateOwned && <GovernmentBuildingIcon />}
+                                    </th>
                                     <td className="px-6 py-4 font-mono">{formatCurrency(asset.price, { maximumFractionDigits: getFractionDigits(asset.price) })}</td>
                                     <td className={`px-6 py-4 font-mono ${change >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                                         <div className="flex items-center">

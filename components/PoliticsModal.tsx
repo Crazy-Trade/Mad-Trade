@@ -1,9 +1,11 @@
 // components/PoliticsModal.tsx
 import React, { useState, useMemo } from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { PoliticsModalProps } from '../game/types';
 import { COUNTRIES } from '../game/database';
 import Modal from './Modal';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 import { formatCurrency, formatNumber } from '../utils';
 
 

@@ -1,11 +1,14 @@
 // components/MainContent.tsx
 import React, { useState } from 'react';
-import { MainContentProps } from '../game/types';
+// Fix: Correctly import types from the newly defined types file.
+// Fix: Import MarginPosition and PortfolioItem types
+import { MainContentProps, MarginPosition, PortfolioItem } from '../game/types';
 import MarketsView from './views/MarketsView';
 import PortfolioView from './views/PortfolioView';
 import CompaniesView from './views/CompaniesView';
 import PoliticsView from './views/PoliticsView';
-import BankView from './views/BankView';
+// Fix: Add .js extension to satisfy module resolution.
+import BankView from './views/BankView.js';
 import LogView from './views/LogView';
 import NewsView from './views/NewsView';
 import TradeModal from './TradeModal';
@@ -21,7 +24,9 @@ import GlobalInfluenceModal from './GlobalInfluenceModal';
 import EventModal from './EventModal';
 import AnalystModal from './AnalystModal';
 import PenaltyChoiceModal from './PenaltyChoiceModal';
-import { t } from '../game/translations';
+import GameOverModal from './GameOverModal';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 import { COUNTRIES } from '../game/database';
 import TimeControls from './TimeControls';
 
@@ -32,7 +37,29 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
     const { assets, player, language } = gameState;
     const [daysToSimulate, setDaysToSimulate] = useState(0);
 
+    // Fix: Calculate netWorth correctly, not just as player.cash
+    const portfolioValue = Object.values(player.portfolio).reduce((acc: number, item: PortfolioItem) => {
+        const asset = assets[item.assetId];
+        return acc + (asset ? asset.price * item.quantity : 0);
+    }, 0);
+
+    const marginEquity = Object.values(player.marginPositions).reduce((acc: number, pos: MarginPosition) => {
+        const asset = assets[pos.assetId];
+        if (!asset) return acc;
+        const currentValue = asset.price * pos.quantity;
+        const entryValue = pos.entryPrice * pos.quantity;
+        const pnl = pos.type === 'long' ? currentValue - entryValue : entryValue - currentValue;
+        return acc + pos.margin + pnl;
+    }, 0);
+    
+    const companyValue = player.companies.length * 500000; // Simplified
+    
+    const netWorth = player.cash + portfolioValue + marginEquity + companyValue - player.loan.amount;
+
     const renderActiveView = () => {
+        if (player.bankruptcyState === 'game_over') {
+            return <div className="text-center text-2xl text-rose-500 font-bold">GAME OVER</div>;
+        }
         switch (activeTab) {
             case 'markets':
                 return <MarketsView assets={assets} tradeBans={player.tradeBans} date={gameState.date} residency={player.currentResidency} setActiveModal={setActiveModal} language={language} />;
@@ -43,7 +70,8 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
             case 'politics':
                 return <PoliticsView gameState={gameState} setActiveModal={setActiveModal} language={language} />;
             case 'bank':
-                return <BankView loan={player.loan} ventureLoans={player.ventureLoans} companies={player.companies} netWorth={player.cash} playerCash={player.cash} date={gameState.date} dispatch={dispatch} setActiveModal={setActiveModal} language={language} />;
+                // Fix: Pass correct netWorth and missing props (politicalCapital, portfolio) to BankView
+                return <BankView loan={player.loan} ventureLoans={player.ventureLoans} revivalLoan={player.revivalLoan} bankruptcyState={player.bankruptcyState} companies={player.companies} netWorth={netWorth} playerCash={player.cash} date={gameState.date} dispatch={dispatch} setActiveModal={setActiveModal} language={language} politicalCapital={player.politicalCapital} portfolio={player.portfolio} />;
             case 'log':
                 return <LogView log={player.log} language={language} />;
             case 'news':
@@ -53,8 +81,8 @@ const MainContent: React.FC<MainContentProps> = ({ gameState, dispatch, activeMo
         }
     };
     
-    const netWorth = player.cash; // Simplified for now
-    const totalPoliticalCapital = Object.values(player.politicalCapital).reduce((sum, val) => sum + val, 0);
+    // Fix: Add explicit types to reduce function callback to resolve 'unknown' type errors.
+    const totalPoliticalCapital = Object.values(player.politicalCapital).reduce<number>((sum, val) => sum + val, 0);
 
     const tabs: { id: Tab, label: string }[] = [
         { id: 'markets', label: t('markets', language) },

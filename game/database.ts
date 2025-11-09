@@ -1,16 +1,17 @@
 // game/database.ts
-import { GameState, Country, Asset, AssetCategory, CompanyType, CompanyData, GlobalFactors } from './types';
+// Fix: Import types from the newly defined types file.
+import { GameState, Country, Asset, AssetCategory, CompanyType, CompanyData, GlobalFactors, PortfolioItem, MarginPosition } from './types';
 
 export const COUNTRIES: Country[] = [
     { id: 'USA', name: 'United States', taxRate: 0.21, companyCostModifier: 1.0, localMarkets: ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'PFE', 'MRNA', 'JNJ', 'CAT', 'PG', 'NY_RealEstate'], immigrationCost: 10000000, politicalParties: [{id: 'dems', name: 'Democrats'}, {id: 'gop', name: 'Republicans'}], electionCycle: { year: 2024, month: 11, interval: 4 } },
-    { id: 'CHN', name: 'China', taxRate: 0.25, companyCostModifier: 0.7, localMarkets: ['TCEHY', 'BABA', 'BIDU', 'NIO'], immigrationCost: 20000000, politicalParties: [{id: 'ccp', name: 'Communist Party'}] },
+    { id: 'CHN', name: 'China', taxRate: 0.25, companyCostModifier: 0.7, localMarkets: ['TCEHY', 'BABA', 'BIDU', 'NIO'], immigrationCost: 20000000, politicalParties: [{id: 'ccp', name: 'Communist Party'}], isAuthoritarian: true },
     { id: 'DEU', name: 'Germany', taxRate: 0.30, companyCostModifier: 1.2, localMarkets: ['VOW3_DE', 'SIE_DE', 'SAP', 'BAYN', 'ALV'], immigrationCost: 8000000, politicalParties: [{id: 'cdu', name: 'CDU/CSU'}, {id: 'spd', name: 'SPD'}] },
     { id: 'JPN', name: 'Japan', taxRate: 0.23, companyCostModifier: 1.1, localMarkets: ['TM', 'TKY_RealEstate', 'SONY', 'NTDOY'], immigrationCost: 12000000, politicalParties: [{id: 'ldp', name: 'LDP'}] },
     { id: 'GBR', name: 'United Kingdom', taxRate: 0.25, companyCostModifier: 1.3, localMarkets: ['LSE_RealEstate', 'BP', 'HSBC', 'AZN', 'RIO'], immigrationCost: 13000000, politicalParties: [{id: 'con', name: 'Conservatives'}, {id: 'lab', name: 'Labour'}] },
     { id: 'AUS', name: 'Australia', taxRate: 0.30, companyCostModifier: 1.2, localMarkets: ['SYD_RealEstate', 'BHP', 'CBA'], immigrationCost: 9000000, politicalParties: [{id: 'lib', name: 'Liberal'}, {id: 'lab', name: 'Labor'}] },
     { id: 'IND', name: 'India', taxRate: 0.22, companyCostModifier: 0.6, localMarkets: ['TTM', 'RELIANCE', 'INFY'], immigrationCost: 5000000, politicalParties: [{id: 'bjp', name: 'BJP'}, {id: 'inc', name: 'Congress'}] },
     { id: 'BRA', name: 'Brazil', taxRate: 0.34, companyCostModifier: 0.8, localMarkets: ['RIO_RealEstate', 'PBR', 'VALE'], immigrationCost: 6000000, politicalParties: [{id: 'pl', name: 'Liberal Party'}, {id: 'pt', name: 'Workers Party'}] },
-    { id: 'RUS', name: 'Russia', taxRate: 0.20, companyCostModifier: 0.8, localMarkets: ['RUS_SCAM', 'SBER'], immigrationCost: 15000000, politicalParties: [{id: 'ur', name: 'United Russia'}] },
+    { id: 'RUS', name: 'Russia', taxRate: 0.20, companyCostModifier: 0.8, localMarkets: ['RUS_SCAM', 'SBER'], immigrationCost: 15000000, politicalParties: [{id: 'ur', name: 'United Russia'}], isAuthoritarian: true },
     { id: 'FRA', name: 'France', taxRate: 0.28, companyCostModifier: 1.3, localMarkets: ['LVMUY', 'TTE', 'SNY'], immigrationCost: 9000000, politicalParties: [{id: 'rem', name: 'La République En Marche!'}, {id: 'rn', name: 'National Rally'}] },
     { id: 'KOR', name: 'South Korea', taxRate: 0.25, companyCostModifier: 0.9, localMarkets: ['SSNLF', 'HYMTF', 'LG'], immigrationCost: 11000000, politicalParties: [{id: 'dp', name: 'Democratic Party'}, {id: 'ppp', name: 'People Power Party'}] },
     { id: 'NLD', name: 'Netherlands', taxRate: 0.25, companyCostModifier: 1.2, localMarkets: ['ASML', 'UL', 'INGA'], immigrationCost: 10000000, politicalParties: [{id: 'vvd', name: 'VVD'}] },
@@ -18,7 +19,7 @@ export const COUNTRIES: Country[] = [
     { id: 'CHE', name: 'Switzerland', taxRate: 0.18, companyCostModifier: 1.5, localMarkets: ['RHHBY', 'NVS', 'UBS', 'NESN'], immigrationCost: 25000000, politicalParties: [{id: 'svp', name: 'SVP'}] },
     { id: 'CAN', name: 'Canada', taxRate: 0.26, companyCostModifier: 1.1, localMarkets: ['VAN_RealEstate', 'SHOP', 'BARRICK'], immigrationCost: 7000000, politicalParties: [{id: 'lib', name: 'Liberal'}, {id: 'con', name: 'Conservative'}] },
     { id: 'ARE', name: 'UAE', taxRate: 0.09, companyCostModifier: 1.4, localMarkets: ['DBI_RealEstate'], immigrationCost: 18000000, politicalParties: [{id: 'monarchy', name: 'Monarchy'}] },
-    { id: 'SAU', name: 'Saudi Arabia', taxRate: 0.20, companyCostModifier: 1.1, localMarkets: ['RUH_RealEstate', 'SAOC'], immigrationCost: 16000000, politicalParties: [{id: 'monarchy', name: 'Monarchy'}] },
+    { id: 'SAU', name: 'Saudi Arabia', taxRate: 0.20, companyCostModifier: 1.1, localMarkets: ['RUH_RealEstate', 'SAOC'], immigrationCost: 16000000, politicalParties: [{id: 'monarchy', name: 'Monarchy'}], isAuthoritarian: true },
 ];
 
 const ASSETS_LIST: Omit<Asset, 'priceHistory' | 'dayOpen' | 'dayHigh' | 'dayLow'>[] = [
@@ -155,8 +156,8 @@ export const getInitialState = (): GameState => {
         player: {
             name: '',
             cash: 1000000,
-            portfolio: {},
-            marginPositions: {},
+            portfolio: {} as Record<string, PortfolioItem>,
+            marginPositions: {} as Record<string, MarginPosition>,
             companies: [],
             loan: { 
                 amount: 0, 
@@ -165,6 +166,7 @@ export const getInitialState = (): GameState => {
                 isDeferredThisMonth: false
             },
             ventureLoans: [],
+            revivalLoan: null,
             loanActionsThisMonth: 0,
             tradeBans: [],
             politicalCapital: {},
@@ -172,6 +174,9 @@ export const getInitialState = (): GameState => {
             residencyHistory: [],
             log: [],
             pendingOrders: [],
+            bankruptcyState: 'none',
+            gracePeriodExpiryDate: null,
+            gameOverReason: null,
         },
         newsTicker: [],
         newsArchive: [],

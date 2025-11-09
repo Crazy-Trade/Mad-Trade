@@ -1,14 +1,18 @@
 // App.tsx
 import React, { useEffect, useReducer, useRef, useState } from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { GameState, ModalType, Language } from './game/types';
-import { gameReducer } from './game/reducer';
+// Fix: Add .js extension to satisfy module resolution.
+import { gameReducer } from './game/reducer.js';
 import { getInitialState } from './game/database';
 import Header from './components/Header';
 import MainContent from './components/MainContent';
 import CountrySelectionModal from './components/CountrySelectionModal';
 import { COUNTRIES } from './game/database';
-import { t } from './game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from './game/translations.js';
 import NewsHeader from './components/NewsHeader';
+import GameOverModal from './components/GameOverModal';
 
 const App: React.FC = () => {
     const [state, dispatch] = useReducer(gameReducer, getInitialState());
@@ -32,7 +36,7 @@ const App: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (!state.isPaused && state.player.name) { // Only save if game has started
+        if (!state.isPaused && state.player.name && state.player.bankruptcyState !== 'game_over') { 
             localStorage.setItem('deepTradingSimulatorState', JSON.stringify(state));
         }
     }, [state]);
@@ -71,16 +75,22 @@ const App: React.FC = () => {
     }, [state.date.dayProgress]);
 
     useEffect(() => {
-        if (state.majorEvent && activeModal?.type !== 'event-popup') {
+        if (state.majorEvent && activeModal?.type !== 'event-popup' && state.player.bankruptcyState !== 'game_over') {
             setActiveModal({ type: 'event-popup', event: state.majorEvent });
         }
     }, [state.majorEvent]);
     
     useEffect(() => {
-        if (state.penaltyRequired && activeModal?.type !== 'penalty-choice') {
+        if (state.penaltyRequired && activeModal?.type !== 'penalty-choice' && state.player.bankruptcyState !== 'game_over') {
             setActiveModal({ type: 'penalty-choice', penaltyInfo: state.penaltyRequired });
         }
     }, [state.penaltyRequired]);
+
+    useEffect(() => {
+        if (state.player.bankruptcyState === 'game_over' && activeModal?.type !== 'game-over') {
+            setActiveModal({ type: 'game-over' });
+        }
+    }, [state.player.bankruptcyState]);
 
 
     useEffect(() => {
@@ -124,18 +134,26 @@ const App: React.FC = () => {
                 onQuit={handleQuit}
                 onDelete={handleDelete}
             />
-            <NewsHeader majorEvent={state.majorEvent} tickerNews={state.newsTicker} language={state.language} />
-            <MainContent
+            {state.player.name && <NewsHeader majorEvent={state.majorEvent} tickerNews={state.newsTicker} language={state.language} />}
+            {state.player.name && <MainContent
                 gameState={state}
                 dispatch={dispatch}
                 activeModal={activeModal}
                 setActiveModal={setActiveModal}
-            />
+            />}
 
             {activeModal?.type === 'country-selection' && (
                 <CountrySelectionModal
                     onSelect={handleCountrySelect}
                     countries={COUNTRIES}
+                    language={state.language}
+                />
+            )}
+            
+            {activeModal?.type === 'game-over' && (
+                <GameOverModal
+                    reason={state.player.gameOverReason}
+                    onRestart={handleDelete}
                     language={state.language}
                 />
             )}

@@ -2,7 +2,8 @@
 import React from 'react';
 import { GlobalInfluenceModalProps, GlobalFactor } from '../game/types';
 import Modal from './Modal';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 import { formatCurrency, formatNumber } from '../utils';
 
 const INFLUENCE_COST_PC = 500;

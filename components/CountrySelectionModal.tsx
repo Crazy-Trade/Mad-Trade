@@ -1,8 +1,10 @@
 // components/CountrySelectionModal.tsx
 import React, { useState } from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { CountrySelectionModalProps } from '../game/types';
 import { formatPercent } from '../utils';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 
 const CountrySelectionModal: React.FC<CountrySelectionModalProps> = ({ onSelect, countries, language }) => {
     const [playerName, setPlayerName] = useState('');

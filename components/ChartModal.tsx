@@ -2,7 +2,8 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { ChartModalProps, PriceHistory, Candle } from '../game/types';
 import Modal from './Modal';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 import { formatCurrency, getFractionDigits } from '../utils';
 
 type TimeRange = '3D' | '1W' | '1M' | '1Y';

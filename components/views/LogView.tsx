@@ -1,7 +1,9 @@
 // components/views/LogView.tsx
 import React, { useState } from 'react';
-import { LogViewProps, LogEntry } from '../../game/types';
-import { t } from '../../game/translations';
+// Fix: Correctly import types from the newly defined types file.
+import { LogViewProps, LogEntry, LogType } from '../../game/types';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../../game/translations.js';
 
 type LogFilter = 'all' | 'trade' | 'corporate' | 'system' | 'loan' | 'politics';
 

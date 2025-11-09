@@ -1,10 +1,12 @@
 // components/OrderModal.tsx
 import React, { useState } from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { OrderModalProps, PendingOrder } from '../game/types';
 import Modal from './Modal';
 import { formatCurrency, getFractionDigits } from '../utils';
 import { PlusIcon, MinusIcon } from './Icons';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 
 const OrderModal: React.FC<OrderModalProps> = ({ onClose, asset, portfolioItem, playerCash, dispatch, language }) => {
     const [orderType, setOrderType] = useState<'buy-limit' | 'sell-limit'>('buy-limit');

@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { LobbyingModalProps, AssetCategory } from '../game/types';
 import Modal from './Modal';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 import { formatNumber } from '../utils';
 
 const LOBBY_COST_PC = 250;

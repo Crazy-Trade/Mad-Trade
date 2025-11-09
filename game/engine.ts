@@ -1,7 +1,9 @@
 // game/engine.ts
+// Fix: Import types from the newly defined types file.
 import { GameState, Asset, NewsItem, DailyNewsScheduleItem, MajorEvent, GlobalFactors, Country, Company, Language } from './types';
 import { ASSETS, COUNTRIES } from './database';
-import { t } from './translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from './translations.js';
 
 export const DAY_DURATION_MS = 150000; // 2.5 minutes per day
 export const PRICE_UPDATE_INTERVAL_MS = 15000; // Update prices every 15 seconds
@@ -54,7 +56,7 @@ export const processEvents = (state: GameState): { majorEventQueue: MajorEvent[]
     const globalFactors = { ...state.globalFactors };
     let newsArchive = [...state.newsArchive];
 
-    const eventPool: MajorEvent[] = [
+    const eventPool: Omit<MajorEvent, 'params'>[] = [
         { titleKey: 'event_tech_summit_title', descriptionKey: 'event_tech_summit_desc', effects: { techInnovation: 0.2, publicSentiment: 0.1 } },
         { titleKey: 'event_us_fed_hike_title', descriptionKey: 'event_us_fed_hike_desc', effects: { usFedPolicy: -0.3, usEconomy: -0.1, globalStability: -0.1 } },
         { titleKey: 'event_china_5_year_plan_title', descriptionKey: 'event_china_5_year_plan_desc', effects: { chinaEconomy: 0.2, techInnovation: 0.1 } },
@@ -67,12 +69,12 @@ export const processEvents = (state: GameState): { majorEventQueue: MajorEvent[]
     ];
 
     if (Math.random() < 0.35) { // 35% chance of a major event per day
-        const event = eventPool[Math.floor(Math.random() * eventPool.length)];
+        const event: MajorEvent = eventPool[Math.floor(Math.random() * eventPool.length)];
         majorEventQueue.push(event);
         // Also add the major event to the news archive
         newsArchive.unshift({
             id: crypto.randomUUID(),
-            headline: t(event.titleKey, state.language),
+            headline: t(event.titleKey, state.language, event.params),
             source: t('breakingNews', state.language),
             isMajor: true,
         });
@@ -112,7 +114,7 @@ export const generateDailyNewsSchedule = (state: GameState): { schedule: DailyNe
         const headlineKeys = [
             'news_earnings_strong', 'news_investigation', 'news_positive_outlook', 
             'news_supply_concerns', 'news_buyback', 'news_regulatory_scrutiny',
-            'news_consumer_confidence', 'news_new_competition'
+            'news_consumer_confidence', 'news_new_competition', 'news_upgrade', 'news_downgrade'
         ];
         const headlineKey = headlineKeys[Math.floor(Math.random() * headlineKeys.length)];
 
@@ -131,15 +133,16 @@ export const generateDailyNewsSchedule = (state: GameState): { schedule: DailyNe
     return { schedule, factors };
 };
 
-export const generateElectionEvent = (country: Country, year: number, language: Language): MajorEvent => {
+export const generateElectionEvent = (country: Country, year: number): MajorEvent => {
     const winner = country.politicalParties[Math.floor(Math.random() * country.politicalParties.length)];
-    const countryName = country.name; // Use the actual country name
-    const winnerName = winner.name;
     
     return {
         titleKey: 'electionResults',
-        // Pass parameters to the description translation key
-        descriptionKey: t('election_description', language, { winnerName, countryName }),
+        descriptionKey: 'election_description',
+        params: {
+            countryName: country.name,
+            winnerName: winner.name,
+        },
         effects: { globalStability: -0.05, publicSentiment: Math.random() * 0.2 - 0.1 } // Add some sentiment shift
     };
 };

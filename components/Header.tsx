@@ -1,18 +1,20 @@
 // components/Header.tsx
 import React from 'react';
-import { GameState, GameAction, PortfolioItem, HeaderProps } from '../game/types';
+// Fix: Correctly import types from the newly defined types file.
+import { GameState, PortfolioItem, HeaderProps, MarginPosition } from '../game/types';
 import { formatCurrency } from '../utils';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 
 const Header: React.FC<HeaderProps> = ({ gameState, dispatch, onSave, onQuit, onDelete }) => {
     const { player, date, assets, language } = gameState;
 
-    const portfolioValue = Object.values(player.portfolio as Record<string, PortfolioItem>).reduce((acc, item) => {
+    const portfolioValue = Object.values(player.portfolio).reduce((acc, item: PortfolioItem) => {
         const asset = assets[item.assetId];
         return acc + (asset ? asset.price * item.quantity : 0);
     }, 0);
 
-    const marginEquity = Object.values(player.marginPositions).reduce((acc, pos) => {
+    const marginEquity = Object.values(player.marginPositions).reduce((acc, pos: MarginPosition) => {
         const asset = assets[pos.assetId];
         if (!asset) return acc;
         const currentValue = asset.price * pos.quantity;

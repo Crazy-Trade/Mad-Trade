@@ -1,8 +1,10 @@
 // components/TimeControls.tsx
 import React, { useState } from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { GameAction, TimeControlsProps } from '../game/types';
 import { PlayIcon, PauseIcon } from './Icons';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 
 const TimeControls: React.FC<TimeControlsProps> = ({ isSimulating, daysToSimulate, isPaused, dispatch, date, language }) => {
     

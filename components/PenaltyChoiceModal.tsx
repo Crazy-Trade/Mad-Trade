@@ -2,7 +2,8 @@
 import React from 'react';
 import { PenaltyChoiceModalProps } from '../game/types';
 import Modal from './Modal';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 import { formatCurrency } from '../utils';
 
 const PenaltyChoiceModal: React.FC<PenaltyChoiceModalProps> = ({ onClose, penaltyInfo, dispatch, language }) => {

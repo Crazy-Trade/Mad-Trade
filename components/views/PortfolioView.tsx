@@ -1,8 +1,10 @@
 // components/views/PortfolioView.tsx
 import React from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { PortfolioViewProps, PortfolioItem, MarginPosition, GameAction } from '../../game/types';
 import { formatCurrency, formatNumber, formatPercent, getFractionDigits } from '../../utils';
-import { t } from '../../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../../game/translations.js';
 
 const PortfolioView: React.FC<PortfolioViewProps> = ({ gameState, dispatch, language }) => {
     const { assets, player } = gameState;

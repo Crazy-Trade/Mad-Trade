@@ -1,8 +1,10 @@
 // components/ImmigrationModal.tsx
 import React, { useState } from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { ImmigrationModalProps } from '../game/types';
 import Modal from './Modal';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 import { formatCurrency } from '../utils';
 
 const ImmigrationModal: React.FC<ImmigrationModalProps> = ({ onClose, dispatch, residency, netWorth, playerCash, countries, language }) => {

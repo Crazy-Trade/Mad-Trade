@@ -1,7 +1,8 @@
 // components/views/NewsView.tsx
 import React from 'react';
 import { NewsViewProps } from '../../game/types';
-import { t } from '../../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../../game/translations.js';
 
 const NewsView: React.FC<NewsViewProps> = ({ newsArchive, language }) => {
     return (

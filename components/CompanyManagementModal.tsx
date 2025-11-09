@@ -4,7 +4,8 @@ import { CompanyManagementModalProps, UpgradeOutcome } from '../game/types';
 import Modal from './Modal';
 import { formatCurrency } from '../utils';
 import { COMPANY_TYPES } from '../game/database';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 
 const MARKETING_COST = 500000;
 const RESEARCH_COST = 2000000;

@@ -1,10 +1,12 @@
 // components/UpgradeCompanyModal.tsx
 import React from 'react';
+// Fix: Correctly import types from the newly defined types file.
 import { UpgradeCompanyModalProps, UpgradeOutcome } from '../game/types';
 import Modal from './Modal';
 import { formatCurrency } from '../utils';
 import { COMPANY_TYPES } from '../game/database';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 
 const UpgradeCompanyModal: React.FC<UpgradeCompanyModalProps> = ({ onClose, company, dispatch, playerCash, language }) => {
     const companyData = COMPANY_TYPES[company.type];

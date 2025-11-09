@@ -1,9 +1,10 @@
 // components/views/PoliticsView.tsx
 import React from 'react';
-// Fix: Changed COUNTRIES import from types to database
+// Fix: Correctly import types from the newly defined types file.
 import { PoliticsViewProps } from '../../game/types';
 import { COUNTRIES } from '../../game/database';
-import { t } from '../../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../../game/translations.js';
 import { formatNumber } from '../../utils';
 
 const PoliticsView: React.FC<PoliticsViewProps> = ({ gameState, setActiveModal, language }) => {
@@ -12,7 +13,8 @@ const PoliticsView: React.FC<PoliticsViewProps> = ({ gameState, setActiveModal, 
     if (!country) return <div>Error: Country not found</div>;
     
     const currentPoliticalCapital = player.politicalCapital[country.id] || 0;
-    const totalPoliticalCapital = Object.values(player.politicalCapital).reduce((sum, val) => sum + val, 0);
+    // Fix: Add explicit types to reduce function callback to resolve 'unknown' type errors.
+    const totalPoliticalCapital = Object.values(player.politicalCapital).reduce((sum: number, val: number) => sum + val, 0);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

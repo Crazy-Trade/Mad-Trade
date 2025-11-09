@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { AnalystModalProps } from '../game/types';
 import Modal from './Modal';
 import { formatCurrency } from '../utils';
-import { t } from '../game/translations';
+// Fix: Add .js extension to satisfy module resolution.
+import { t } from '../game/translations.js';
 
 const PREDICTION_COST = 70000;
 const ANALYSIS_COST = 35000;
